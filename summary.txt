@@ -1,0 +1,3 @@
+- Project involves renaming configuration file from .cursorrules to cursorrules
+- Git repository is being maintained with proper version control
+- Language configuration files renamed from cursor.{language} to just {language} for simplicity

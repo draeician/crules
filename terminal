@@ -1,0 +1,12 @@
+# Rename all cursor.language files to their base names
+for file in cursor.*; do
+    if [[ $file == cursor.* ]]; then
+        mv "$file" "${file#cursor.}"
+    fi
+done
+
+# Stage all changes
+git add .
+
+# Create commit with descriptive message
+git commit -m "refactor: simplify language file names" 
