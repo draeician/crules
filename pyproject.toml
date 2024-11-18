@@ -1,0 +1,16 @@
+[project]
+name = "crules"
+version = "0.1.0"
+description = "Cursor Rules Generator Script"
+dependencies = [
+    "pyyaml>=6.0",
+    "click>=8.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 88
+target-version = "py39" 

@@ -1,8 +1,6 @@
-rename .cursorrules to cursorrules and update git
+Create the crules python program based off the project_spec.md provided.
 ---
-rename all the cursor.language files to just the language they have in the extension, and update git
+Begin implementation of crules Python program with initial project structure and core functionality
 ---
-Create a git commit for the staging changes
----
-Create git commit for all files in staging
+Add --list feature and reorganize language files into lang_rules directory
 --- 
