@@ -1,9 +1,7 @@
-# Cursor specific
-.cursorrules
-
 instructions.txt
 summary.txt
 terminal.txt
+*.bak
 
 # Dependency directories
 node_modules/
@@ -123,3 +121,6 @@ wheels/
 *.swo
 
 # Ignore
+
+# Cursor specific
+.cursorrules

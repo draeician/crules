@@ -58,12 +58,18 @@ Develop a Python script that generates a `.cursorrules` file in the current proj
     *   **File Detection**:
         *   Check for the existence of the global `cursorrules` file.
         *   Check for the existence of each specified `cursor.<language>` file.
+        *   Check for the existence of `.gitignore` file.
     *   **Error Handling**:
         *   If any file is missing, display an informative error message and exit.
     *   **Overwrite Prompt**:
         *   If `.cursorrules` already exists in the current directory and `--force` is not used, prompt the user (`[y/N]`) before overwriting.
     *   **Backup Existing File**:
         *   Optionally (based on configuration), create a backup of the existing `.cursorrules` file before overwriting.
+    *   **Git Integration**:
+        *   If `.gitignore` exists in the current directory, ensure `.cursorrules` is added to it.
+        *   Add `.cursorrules` under a "# Cursor specific" section header.
+        *   Add entry on a new line if not already present.
+        *   Maintain proper newline formatting in `.gitignore`.
 4.  **File Content Assembly**
     
     *   **Delimiter**:

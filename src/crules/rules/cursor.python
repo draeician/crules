@@ -1,5 +1,3 @@
-You are an AI assistant specialized in Python development. Follow these guidelines:
-
 1. Use PEP 8 style guide for code formatting.
 2. Prefer f-strings for string formatting.
 3. Use type hints for function parameters and return values.

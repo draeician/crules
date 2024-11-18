@@ -73,7 +73,7 @@ def setup_directory_structure(verbose: bool = False) -> bool:
             default_config = {
                 "global_rules_path": str(global_rules),
                 "language_rules_dir": str(lang_rules_dir),
-                "delimiter": "\n# --- {heading} ---\n",  # Updated delimiter with heading placeholder
+                "delimiter": "\n# --- Delimiter ---\n",  # Ensure this is the correct delimiter
                 "backup_existing": True,
             }
             with config_file.open('w') as f:
@@ -149,17 +149,12 @@ def backup_existing_rules(force: bool = False) -> bool:
 
 def combine_rules(global_rules: Path, language_rules_dir: Path, 
                  languages: List[str], delimiter: str) -> str:
-    """Combine global and language-specific rules.
-    
-    The delimiter can include a {heading} placeholder that will be replaced
-    with an appropriate section heading.
-    """
+    """Combine global and language-specific rules."""
     content_parts = []
     
-    # Add global rules with heading
+    # Add global rules
     try:
-        content_parts.append("## Global Cursor Rules")
-        content_parts.append(global_rules.read_text())
+        content_parts.append(global_rules.read_text().strip())
     except Exception as e:
         logger.error(f"Failed to read global rules: {e}")
         raise
@@ -168,12 +163,38 @@ def combine_rules(global_rules: Path, language_rules_dir: Path,
     for lang in languages:
         try:
             lang_file = language_rules_dir / f"cursor.{lang}"
-            # Format delimiter with heading if placeholder exists
-            section_delimiter = delimiter.format(heading=f"Rules for {lang}") if "{heading}" in delimiter else delimiter
-            content_parts.append(section_delimiter)
-            content_parts.append(lang_file.read_text())
+            # Add just the language header and content
+            content = lang_file.read_text().strip()
+            # Remove any existing language headers or delimiters
+            content = content.replace("# --- Delimiter ---", "")
+            content = '\n'.join(line for line in content.splitlines() 
+                              if not line.strip().startswith("# Rules for"))
+            content_parts.append(f"# Rules for {lang}\n{content}")
         except Exception as e:
             logger.error(f"Failed to read rules for {lang}: {e}")
             raise
+    
+    # Update .gitignore if it exists
+    update_gitignore()
             
-    return "\n".join(content_parts) 
+    return delimiter.join(content_parts)
+
+def update_gitignore() -> None:
+    """Add .cursorrules to .gitignore if it exists."""
+    gitignore_path = Path('.gitignore')
+    if not gitignore_path.exists():
+        return
+
+    # Read current content
+    content = gitignore_path.read_text()
+    lines = content.splitlines()
+
+    # Check if .cursorrules is already in .gitignore
+    if '.cursorrules' not in lines:
+        # Add section header and .cursorrules
+        with gitignore_path.open('a') as f:
+            # Ensure there's a newline before our new section if file isn't empty
+            if content and not content.endswith('\n'):
+                f.write('\n')
+            f.write('\n# Cursor specific\n.cursorrules\n')
+            logger.debug("Added .cursorrules to .gitignore with section header")
