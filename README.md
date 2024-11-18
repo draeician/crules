@@ -24,6 +24,19 @@ cd crules
 pip install .
 ```
 
+> **Note:** If you encounter an "externally-managed-environment" error, you have two options:
+> 1. **Recommended:** Create and use a virtual environment:
+>    ```bash
+>    python3 -m venv .venv
+>    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+>    pip install .
+>    ```
+> 2. **Alternative:** Use the `--break-system-packages` flag (not recommended):
+>    ```bash
+>    pip install . --break-system-packages
+>    ```
+>    This is not recommended as it may interfere with system Python packages.
+
 ## Configuration
 
 The default configuration file is located at `~/.config/Cursor/cursor-rules/config.yaml`:
