@@ -3,4 +3,12 @@ Create the crules python program based off the project_spec.md provided.
 Begin implementation of crules Python program with initial project structure and core functionality
 ---
 Add --list feature and reorganize language files into lang_rules directory
+---
+Create README.md file for the project
+---
+Create requirements.txt file for the project
+---
+Update documentation to use correct GitHub username (draeician)
+---
+Implement --setup feature and update documentation
 --- 

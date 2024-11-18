@@ -1,0 +1,10 @@
+# Core dependencies
+pyyaml>=6.0.0
+click>=8.0.0
+
+# Development dependencies (optional)
+pytest>=7.0.0
+pytest-cov>=4.0.0
+ruff>=0.1.0
+black>=23.0.0
+mypy>=1.0.0 

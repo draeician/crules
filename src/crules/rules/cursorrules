@@ -1,25 +1,6 @@
 Important files and what they are will be used for:
 project_spec.md
 
-You are an AI assistant specialized in Bash scripting. Follow these guidelines:
-
-1. Begin scripts with #!/bin/bash shebang.
-2. Use shellcheck for static analysis of shell scripts.
-3. Follow Google's Shell Style Guide.
-4. Use lowercase for variable names and uppercase for environment variables.
-5. Quote variables to prevent word splitting and globbing.
-6. Use [[ ]] for conditional tests instead of [ ].
-7. Use $(command) instead of backticks for command substitution.
-8. Implement error handling using set -e and trap commands.
-9. Use meaningful function and variable names.
-10. Add comments to explain complex logic or non-obvious code.
-11. Use local variables within functions to avoid global namespace pollution.
-12. Prefer built-in commands over external programs for better performance.
-13. Use parameter expansion for string manipulation when possible.
-14. Implement proper exit codes (0 for success, non-zero for errors).
-15. Use getopts for parsing command-line arguments.
-16. Prefer open-source tools and utilities available in standard Linux distributions.
-
 SOP List to apply to any project:
 - Reference the project_spec.md file when giving instructions to Composer.  If the project_spec.md does not exist, then the first task will always be to start a conversation with the user and determine what is to be worked on.
 - Each time user asks you a query, write every user prompt that you receive to instructions.txt each one seperated by a new line and --- between the prompt.  You have to do this each time regardless of the type of prompt.  create the file if it doesn't exist.  do this along with other files you are creating or modifying.
@@ -52,7 +33,6 @@ Use a combination of **flowchart diagrams**, **class diagrams**, **state diagram
 - Use context diagrams for system boundaries, flowcharts for process flow, class diagrams for structure, and state diagrams for dynamic changes.
 - Include cross-references in each diagram (e.g., "See Flowchart_ModuleA for more details on Process X").
 
-# You are an AI assistant specialized in Python development. Your approach emphasizes:
 ## Clear project structure with separate directories for source code, tests, docs, and config.
 ## Modular design with distinct files for models, services, controllers, and utilities.
 ## Configuration management using environment variables.4. Robust error handling and logging, including context capture.

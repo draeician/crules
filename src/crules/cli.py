@@ -15,12 +15,22 @@ logger = logging.getLogger(__name__)
 @click.option('-f', '--force', is_flag=True, help='Force overwrite existing files')
 @click.option('-v', '--verbose', is_flag=True, help='Enable verbose output')
 @click.option('-l', '--list', 'show_list', is_flag=True, help='List available language rules')
-def main(languages: tuple[str, ...], force: bool, verbose: bool, show_list: bool) -> None:
+@click.option('-s', '--setup', 'setup_dirs', is_flag=True, help='Create necessary directories and files')
+def main(languages: tuple[str, ...], force: bool, verbose: bool, show_list: bool, setup_dirs: bool) -> None:
     """Generate .cursorrules file combining global and language-specific rules."""
     if verbose:
         logging.getLogger().setLevel(logging.DEBUG)
     
     try:
+        # Handle --setup option
+        if setup_dirs:
+            logger.info("Setting up crules directory structure...")
+            if file_ops.setup_directory_structure(verbose):
+                logger.info("Setup complete!")
+            else:
+                raise click.ClickException("Setup failed")
+            return
+
         # Load configuration
         cfg = config.load_config()
         global_rules = Path(cfg['global_rules_path']).expanduser()
@@ -31,10 +41,16 @@ def main(languages: tuple[str, ...], force: bool, verbose: bool, show_list: bool
             file_ops.list_available_languages(lang_rules_dir)
             return
             
-        # Require languages argument if not listing
+        # Require languages argument if not listing or setting up
         if not languages:
             raise click.UsageError("Please specify at least one language or use --list to see available options")
         
+        # Suggest setup if directories don't exist
+        if not global_rules.exists() or not lang_rules_dir.exists():
+            raise click.ClickException(
+                "Required directories not found. Run 'crules --setup' to create them."
+            )
+            
         # Validate files exist
         if not file_ops.check_files_exist(global_rules, lang_rules_dir, languages):
             raise click.ClickException("Required files not found")

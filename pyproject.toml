@@ -2,9 +2,30 @@
 name = "crules"
 version = "0.1.0"
 description = "Cursor Rules Generator Script"
+authors = [
+    {name = "draeician", email = "draeician@gmail.com"},
+]
 dependencies = [
     "pyyaml>=6.0",
     "click>=8.0.0",
+    "setuptools>=42.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/draeician/crules"
+Repository = "https://github.com/draeician/crules.git"
+
+[project.scripts]
+crules = "crules.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["crules", "crules.rules"]
+
+[tool.setuptools.package-data]
+"crules.rules" = [
+    "cursor.*",
+    "default_cursorrules"
 ]
 
 [build-system]

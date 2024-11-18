@@ -51,6 +51,8 @@ Develop a Python script that generates a `.cursorrules` file in the current proj
         *   `-f`, `--force`: Force overwrite of existing `.cursorrules` without prompt.
         *   `-v`, `--verbose`: Enable verbose output.
         *   `-h`, `--help`: Display help message.
+        *   `-l`, `--list`: List available language rules.
+        *   `-s`, `--setup`: Create necessary directories and files if they don't exist.
 3.  **File Operations**
     
     *   **File Detection**:
@@ -123,6 +125,18 @@ Develop a Python script that generates a `.cursorrules` file in the current proj
     *   **Global Config**: `~/.config/Cursor/cursor-rules/config.yaml`
     *   **Global Rules File**: As specified in the config (`global_rules_path`)
     *   **Language Rules Files**: Located in `~/.config/Cursor/cursor-rules/lang_rules/cursor.<language>`
+*   **Setup Feature**:
+    *   Creates necessary directories if they don't exist:
+        ```
+        ~/.config/Cursor/cursor-rules/
+        ~/.config/Cursor/cursor-rules/lang_rules/
+        ```
+    *   Creates default files if they don't exist:
+        *   `~/.config/Cursor/cursor-rules/cursorrules` (empty file)
+        *   `~/.config/Cursor/cursor-rules/config.yaml` (with default configuration)
+    *   Provides verbose output during setup if requested
+    *   Returns success/failure status
+    *   Can be run multiple times safely (idempotent)
 
 **User Interaction Examples**
 
@@ -166,6 +180,20 @@ Develop a Python script that generates a `.cursorrules` file in the current proj
     - javascript (cursor.javascript)
     - rust (cursor.rust)
     ```
+*   **Setup Directory Structure**:
+    ```bash
+    python script.py --setup
+    ```
+    *   Creates necessary directories and files
+    *   Example output:
+    ```
+    Setting up crules directory structure...
+    Created directory: ~/.config/Cursor/cursor-rules
+    Created directory: ~/.config/Cursor/cursor-rules/lang_rules
+    Created file: ~/.config/Cursor/cursor-rules/cursorrules
+    Created file: ~/.config/Cursor/cursor-rules/config.yaml
+    Setup complete!
+    ```
 
 **Testing and Validation**
 
@@ -187,8 +215,13 @@ Develop a Python script that generates a `.cursorrules` file in the current proj
 **Error Messages and Handling**
 
 *   **File Not Found**:
-    *   `"Error: Global rules file not found at /path/to/cursorrules."`
-    *   `"Error: Language rules file 'cursor.python' not found in /path/to/language/rules."`
+    *   `"Error: Global rules file not found at /path/to/cursorrules. Use --setup to create required directories."`
+    *   `"Error: Language rules directory not found at /path/to/language/rules. Use --setup to create required directories."`
+*   **Setup Messages**:
+    *   `"Created directory: ~/.config/Cursor/cursor-rules"`
+    *   `"Created directory: ~/.config/Cursor/cursor-rules/lang_rules"`
+    *   `"Created file: ~/.config/Cursor/cursor-rules/cursorrules"`
+    *   `"Created file: ~/.config/Cursor/cursor-rules/config.yaml"`
 *   **Permission Denied**:
     *   `"Error: Permission denied when attempting to read '/path/to/cursorrules'."`
 *   **Invalid Language Argument**:

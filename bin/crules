@@ -1,0 +1,11 @@
+#!/bin/bash
+VENV_PATH="$HOME/.local/share/crules/venv"
+
+# Create venv if it doesn't exist
+if [ ! -d "$VENV_PATH" ]; then
+    python3 -m venv "$VENV_PATH"
+    "$VENV_PATH/bin/pip" install crules
+fi
+
+# Run crules with venv python
+exec "$VENV_PATH/bin/python" -m crules "$@" 

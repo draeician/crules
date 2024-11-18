@@ -9,3 +9,9 @@
   - --list option to display available language rules
   - Reorganized language files into lang_rules directory
   - Updated configuration and file paths
+  - Added --setup option for first-time configuration
+• Documentation:
+  - Created comprehensive README.md
+  - Added requirements.txt for dependency management
+  - Updated GitHub references to use draeician username
+  - Updated docs to include setup instructions
