@@ -73,7 +73,7 @@ def setup_directory_structure(verbose: bool = False) -> bool:
             default_config = {
                 "global_rules_path": str(global_rules),
                 "language_rules_dir": str(lang_rules_dir),
-                "delimiter": "\n# --- Delimiter ---\n",
+                "delimiter": "\n# --- {heading} ---\n",  # Updated delimiter with heading placeholder
                 "backup_existing": True,
             }
             with config_file.open('w') as f:
@@ -149,11 +149,16 @@ def backup_existing_rules(force: bool = False) -> bool:
 
 def combine_rules(global_rules: Path, language_rules_dir: Path, 
                  languages: List[str], delimiter: str) -> str:
-    """Combine global and language-specific rules."""
+    """Combine global and language-specific rules.
+    
+    The delimiter can include a {heading} placeholder that will be replaced
+    with an appropriate section heading.
+    """
     content_parts = []
     
-    # Add global rules
+    # Add global rules with heading
     try:
+        content_parts.append("## Global Cursor Rules")
         content_parts.append(global_rules.read_text())
     except Exception as e:
         logger.error(f"Failed to read global rules: {e}")
@@ -161,12 +166,14 @@ def combine_rules(global_rules: Path, language_rules_dir: Path,
         
     # Add language-specific rules
     for lang in languages:
-        lang_file = language_rules_dir / f"cursor.{lang}"
         try:
-            content_parts.append(f"\n# Rules for {lang}")
+            lang_file = language_rules_dir / f"cursor.{lang}"
+            # Format delimiter with heading if placeholder exists
+            section_delimiter = delimiter.format(heading=f"Rules for {lang}") if "{heading}" in delimiter else delimiter
+            content_parts.append(section_delimiter)
             content_parts.append(lang_file.read_text())
         except Exception as e:
             logger.error(f"Failed to read rules for {lang}: {e}")
             raise
             
-    return delimiter.join(content_parts) 
+    return "\n".join(content_parts) 

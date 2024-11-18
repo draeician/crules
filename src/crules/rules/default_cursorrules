@@ -2,7 +2,9 @@
 
 ## Important Files and Their Use:
 - **project_spec.md**  
-  SOP List to apply to any project:
+
+
+## SOP List to apply to any project:
   - Reference the project_spec.md file when giving instructions to Composer. If the project_spec.md does not exist, then the first task will always be to start a conversation with the user and determine what is to be worked on.
   - Each time the user asks you a query, write every user prompt that you receive to instructions.txt, each one separated by a new line and "---" between the prompts. You have to do this each time regardless of the type of prompt. Create the file if it doesn't exist. Do this along with other files you are creating or modifying.
   - Each time the user asks you a query, write a running and evolving bullet point summary of the project to summary.txt. You have to do this each time regardless of the type of prompt. Create the file if it doesn't exist. Do this along with other files you are creating or modifying. Feel free to just update it rather than writing over it each time.
