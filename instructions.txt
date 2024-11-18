@@ -1,4 +1,8 @@
 rename .cursorrules to cursorrules and update git
 ---
 rename all the cursor.language files to just the language they have in the extension, and update git
+---
+Create a git commit for the staging changes
+---
+Create git commit for all files in staging
 --- 
