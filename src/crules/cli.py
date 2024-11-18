@@ -2,6 +2,7 @@
 from pathlib import Path
 import logging
 import click
+from . import __version__
 from . import config, file_ops
 
 logging.basicConfig(
@@ -11,6 +12,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 @click.command()
+@click.version_option(version=__version__, prog_name='crules')
 @click.argument('languages', nargs=-1, required=False)
 @click.option('-f', '--force', is_flag=True, help='Force overwrite existing files')
 @click.option('-v', '--verbose', is_flag=True, help='Enable verbose output')

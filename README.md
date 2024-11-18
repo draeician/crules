@@ -30,7 +30,7 @@ pip install .
 >    python3 -m venv .venv
 >    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 >    pip install .
->    ```
+>    ```us
 > 2. **Alternative:** Use the `--break-system-packages` flag (not recommended):
 >    ```bash
 >    pip install . --break-system-packages
@@ -196,4 +196,7 @@ pip install -e ".[dev]"
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+[![PyPI version](https://badge.fury.io/py/crules.svg)](https://badge.fury.io/py/crules)
+[![Python versions](https://img.shields.io/pypi/pyversions/crules.svg)](https://pypi.org/project/crules/) 
