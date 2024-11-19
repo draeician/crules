@@ -180,7 +180,7 @@ def combine_rules(global_rules: Path, language_rules_dir: Path,
     return delimiter.join(content_parts)
 
 def update_gitignore() -> None:
-    """Add .cursorrules to .gitignore if it exists."""
+    """Add .cursorrules and .cursorrules.bak to .gitignore if it exists."""
     gitignore_path = Path('.gitignore')
     if not gitignore_path.exists():
         return
@@ -189,12 +189,20 @@ def update_gitignore() -> None:
     content = gitignore_path.read_text()
     lines = content.splitlines()
 
-    # Check if .cursorrules is already in .gitignore
-    if '.cursorrules' not in lines:
-        # Add section header and .cursorrules
+    # Check if either file is already in .gitignore
+    cursor_entries = {'.cursorrules', '.cursorrules.bak'}
+    existing_entries = cursor_entries.intersection(lines)
+    
+    if len(existing_entries) < len(cursor_entries):
+        # Add section header and entries
         with gitignore_path.open('a') as f:
             # Ensure there's a newline before our new section if file isn't empty
             if content and not content.endswith('\n'):
                 f.write('\n')
-            f.write('\n# Cursor specific\n.cursorrules\n')
-            logger.debug("Added .cursorrules to .gitignore with section header")
+            f.write('\n# Cursor specific\n')
+            
+            # Add any missing entries
+            for entry in cursor_entries - existing_entries:
+                f.write(f'{entry}\n')
+            
+            logger.debug("Added Cursor entries to .gitignore")
