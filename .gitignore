@@ -125,3 +125,4 @@ wheels/
 
 # Cursor specific
 .cursorrules
+.cursorrules.bak

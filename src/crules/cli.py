@@ -14,12 +14,22 @@ logger = logging.getLogger(__name__)
 @click.command()
 @click.version_option(version=__version__, prog_name='crules')
 @click.argument('languages', nargs=-1, required=False)
-@click.option('-f', '--force', is_flag=True, help='Force overwrite existing files')
-@click.option('-v', '--verbose', is_flag=True, help='Enable verbose output')
-@click.option('-l', '--list', 'show_list', is_flag=True, help='List available language rules')
-@click.option('-s', '--setup', 'setup_dirs', is_flag=True, help='Create necessary directories and files')
+@click.option('-f', '--force', is_flag=True, 
+              help='Force overwrite existing files. With --setup, updates existing rule files.')
+@click.option('-v', '--verbose', is_flag=True, 
+              help='Enable verbose output with detailed logging')
+@click.option('-l', '--list', 'show_list', is_flag=True, 
+              help='List available language rules in the rules directory')
+@click.option('-s', '--setup', 'setup_dirs', is_flag=True, 
+              help='Create or update necessary directories and rule files')
 def main(languages: tuple[str, ...], force: bool, verbose: bool, show_list: bool, setup_dirs: bool) -> None:
-    """Generate .cursorrules file combining global and language-specific rules."""
+    """Generate .cursorrules file combining global and language-specific rules.
+
+    Use --setup to initialize or update the rules directory structure.
+    Use --force with --setup to update existing rule files.
+    Use --list to see available language rules.
+    Use --verbose for detailed operation logging.
+    """
     if verbose:
         logging.getLogger().setLevel(logging.DEBUG)
     
@@ -27,7 +37,7 @@ def main(languages: tuple[str, ...], force: bool, verbose: bool, show_list: bool
         # Handle --setup option
         if setup_dirs:
             logger.info("Setting up crules directory structure...")
-            if file_ops.setup_directory_structure(verbose):
+            if file_ops.setup_directory_structure(verbose, force):
                 logger.info("Setup complete!")
             else:
                 raise click.ClickException("Setup failed")

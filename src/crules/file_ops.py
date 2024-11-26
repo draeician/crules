@@ -8,7 +8,7 @@ from importlib import resources
 
 logger = logging.getLogger(__name__)
 
-def copy_predefined_rules(lang_rules_dir: Path, verbose: bool = False) -> None:
+def copy_predefined_rules(lang_rules_dir: Path, verbose: bool = False, force: bool = False) -> None:
     """Copy predefined language rules to the lang_rules directory."""
     try:
         # Get predefined rules using importlib.resources
@@ -17,25 +17,42 @@ def copy_predefined_rules(lang_rules_dir: Path, verbose: bool = False) -> None:
                 logger.warning("No predefined rules found in package")
                 return
                 
+            if verbose:
+                logger.debug(f"Looking for rules in: {rules_path}")
+                
             # Copy each rule file found
             for rule_file in rules_path.glob('cursor.*'):
                 try:
+                    if verbose:
+                        logger.debug(f"Processing rule file: {rule_file}")
                     with rule_file.open('r') as src:
                         dest_file = lang_rules_dir / rule_file.name
-                        if not dest_file.exists():
-                            dest_file.write_text(src.read())
+                        if verbose:
+                            logger.debug(f"Destination file: {dest_file} (exists: {dest_file.exists()}, force: {force})")
+                        # Always copy if force is True or file doesn't exist
+                        if force or not dest_file.exists():
+                            content = src.read()
+                            dest_file.write_text(content)
                             if verbose:
-                                logger.info(f"Copied predefined rules: {rule_file.name}")
+                                logger.info(f"{'Updated' if dest_file.exists() else 'Copied'} rules: {rule_file.name}")
+                                logger.debug(f"Content length: {len(content)} bytes")
                         elif verbose:
                             logger.info(f"Skipped existing rules: {rule_file.name}")
                 except Exception as e:
                     logger.error(f"Failed to copy {rule_file.name}: {e}")
+                    raise  # Re-raise to see full traceback in verbose mode
                     
     except Exception as e:
         logger.error(f"Failed to copy predefined rules: {e}")
+        raise  # Re-raise to see full traceback in verbose mode
 
-def setup_directory_structure(verbose: bool = False) -> bool:
-    """Create necessary directories and files for crules."""
+def setup_directory_structure(verbose: bool = False, force: bool = False) -> bool:
+    """Create necessary directories and files for crules.
+    
+    Args:
+        verbose: Whether to show verbose output
+        force: Whether to overwrite existing files
+    """
     try:
         base_dir = Path("~/.config/Cursor/cursor-rules").expanduser()
         lang_rules_dir = base_dir / "lang_rules"
@@ -52,15 +69,15 @@ def setup_directory_structure(verbose: bool = False) -> bool:
             logger.info(f"Created directory: {lang_rules_dir}")
 
         # Copy predefined language rules
-        copy_predefined_rules(lang_rules_dir, verbose)
+        copy_predefined_rules(lang_rules_dir, verbose, force)
 
-        # Create global rules file if it doesn't exist
-        if not global_rules.exists():
+        # Create or update global rules file
+        if not global_rules.exists() or force:
             try:
                 with resources.files('crules.rules').joinpath('default_cursorrules').open('r') as src:
                     global_rules.write_text(src.read())
                     if verbose:
-                        logger.info(f"Created file with default rules: {global_rules}")
+                        logger.info(f"{'Updated' if global_rules.exists() else 'Created'} file with default rules: {global_rules}")
             except Exception as e:
                 logger.error(f"Failed to copy default rules: {e}")
                 logger.warning("Creating empty file instead")
@@ -68,18 +85,18 @@ def setup_directory_structure(verbose: bool = False) -> bool:
                 if verbose:
                     logger.info(f"Created empty file: {global_rules}")
 
-        # Create default config if it doesn't exist
-        if not config_file.exists():
+        # Create or update default config
+        if not config_file.exists() or force:
             default_config = {
                 "global_rules_path": str(global_rules),
                 "language_rules_dir": str(lang_rules_dir),
-                "delimiter": "\n# --- Delimiter ---\n",  # Ensure this is the correct delimiter
+                "delimiter": "\n# --- Delimiter ---\n",
                 "backup_existing": True,
             }
             with config_file.open('w') as f:
                 yaml.dump(default_config, f, default_flow_style=False)
             if verbose:
-                logger.info(f"Created file: {config_file}")
+                logger.info(f"{'Updated' if config_file.exists() else 'Created'} file: {config_file}")
 
         return True
     except Exception as e:

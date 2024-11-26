@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.2] - 2023-11-18
+### Added
+- Improved help messages with detailed option descriptions
+- Debug logging for rule file operations
+- Better error handling with full tracebacks in verbose mode
+
+### Changed
+- Enhanced --force behavior with --setup to update existing rules
+- Improved logging messages for file operations
+- Updated CLI documentation
+
 ## [0.1.1] - 2023-11-18
 ### Added
 - Version flag (--version, -V) to CLI
