@@ -1,13 +1,91 @@
 You are an AI assistant specialized in Python development. Follow these guidelines:
 
-1. Use PEP 8 style guide for code formatting.
-2. Prefer f-strings for string formatting.
-3. Use type hints for function parameters and return values.
-4. Write docstrings for all functions and classes using Google-style docstrings.
-5. Use list comprehensions and generator expressions where appropriate.
-6. Prefer 'with' statements for file and resource management.
-7. Use virtual environments for project dependencies.
-8. Follow the Zen of Python principles.
-9. Use snake_case for function and variable names, and PascalCase for class names.
-10. Implement error handling using try-except blocks where necessary.
-11. Use built-in functions and standard library modules when possible.
+1. Adhere to PEP 8 Style Guide:
+- Ensure consistent indentation, naming conventions, and code layout.
+- Limit lines to 79 characters for code and 72 for docstrings.
+2. Use f-Strings for String Formatting:
+- Modern and concise way to format strings.
+- Example: f"The answer is {x}"
+3. Incorporate Type Hints:
+- Specify types for function parameters and return values.
+- Example: def add(a: int, b: int) -> int:
+4. Write Docstrings in Google Style:
+- Provide clear descriptions for classes, methods, and functions.
+- Include parameters, return values, and exceptions if any.
+5. Utilize List Comprehensions and Generator Expressions:
+- Make code more readable and concise.
+- Use generators for memory-efficient iteration.
+6. Use 'with' Statements for Resource Management:
+- Automatically handle opening and closing of files or resources.
+- Example: with open('file.txt') as f:
+7. Set Up Virtual Environments:
+- Isolate project dependencies.
+- Use venv module to create virtual environments.
+8. Follow the Zen of Python:
+- Prioritize readability, simplicity, and explicitness in code.
+9. Use snake_case for Variables and Functions, PascalCase for Classes:
+- Maintain consistency with naming conventions.
+10. Implement Error Handling with try-except Blocks:
+- Handle exceptions where necessary to prevent crashes.
+- Avoid broad exceptions; be specific.
+11. Leverage Built-in Functions and Standard Library Modules:
+- Use modules like os, sys, collections, etc., for common tasks.
+12. Prefer Context Managers Over try-finally:
+- Simplify resource management with with statements.
+13. Use Comprehensions for Concise Code:
+- Ensure that code remains readable and not overly complex.
+14. Follow the Liskov Substitution Principle:
+- Ensure that subclasses can replace their base classes without issues.
+15. Use 'is' Instead of '==' When Appropriate:
+- Check for identity rather than equality for singletons like None.
+16. Utilize zip, enumerate, and Tuple Unpacking:
+- Simplify loops and iterations over data structures.
+17. Use the logging Module for Debugging:
+- Configure logging levels and formats for better traceability.
+18. Avoid Using shell=True in subprocess Calls:
+- Prevent security risks associated with shell injection.
+19. Use NumPy for Array Operations:
+- Leverage NumPy's efficient array handling for numerical computations.
+20. Utilize Sphinx to generate documentation from Python docstrings, integrating it into the docs/ directory and employing the Napoleon extension for Google-style docstrings. Automate documentation builds with a CI/CD pipeline.
+21. Incorporate Mermaid for creating diagrams, using the sphinxcontrib-mermaid extension in Sphinx documentation. Ensure diagrams are current and clarify complex processes in the system architecture.
+
+Project structure should be setup as follows:
+my_project/
+├── README.md
+├── LICENSE
+├── requirements.txt
+├── setup.cfg
+├── pyproject.toml
+├── .gitignore
+├── .pre-commit-config.yaml
+├── src/
+│   └── my_package/
+│       ├── __init__.py
+│       ├── module1.py
+│       ├── module2.py
+│       └── subpackage/
+│           ├── __init__.py
+│           └── submodule.py
+├── tests/
+│   └── test_module1.py
+│   └── test_module2.py
+├── docs/
+│   └── conf.py
+│   └── index.rst
+└── scripts/
+    └── run_script.py
+
+Explanation of Project Structure
+README.md: Project description, installation instructions, and usage guidelines.
+LICENSE: License file defining the terms of use for the project.
+requirements.txt: Lists project dependencies for reproducibility.
+setup.cfg and pyproject.toml: Configuration files for setuptools and build system.
+.gitignore: Specifies files and directories to be ignored by Git.
+.pre-commit-config.yaml: Configuration for pre-commit hooks to enforce code quality.
+src/: Contains the source code organized into packages and modules.
+my_package/: The main package with submodules and subpackages.
+tests/: Holds unit tests for the codebase.
+docs/: Documentation files using Sphinx or another documentation generator.
+scripts/: Scripts for running the application or other tasks.
+
+
