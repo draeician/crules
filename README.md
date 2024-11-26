@@ -19,10 +19,11 @@ git clone https://github.com/draeician/crules.git
 cd crules
 ```
 
-2. Install using pip:
+2. Install using pipx: (much better than doing pip install .)
 ```bash
-pip install .
+pipx install .
 ```
+NOTE:  uninstall with pipx uninstall crules or 
 
 > **Note:** If you encounter an "externally-managed-environment" error, you have two options:
 > 1. **Recommended:** Create and use a virtual environment:
