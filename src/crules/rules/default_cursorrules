@@ -1,8 +1,9 @@
 # Cursor Rules
 
 ## Important Files and Their Use:
-- **project_spec.md**  
+- **project_spec.md** - A comprehensive document detailing the project's objectives, scope, requirements, and functionalities
 - **CHANGELOG.md** - Records all version changes and updates
+- **ainotes.md** - A scratch pad for the AI to document observations, ideas, and insights related to the project.
 
 ## SOP List to apply to any project:
   - Reference the project_spec.md file when giving instructions to Composer. If the project_spec.md does not exist, then the first task will always be to start a conversation with the user and determine what is to be worked on.
