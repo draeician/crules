@@ -5,6 +5,9 @@ SOP List to apply to any project:
 - Reference the project_spec.md file when giving instructions to Composer.  If the project_spec.md does not exist, then the first task will always be to start a conversation with the user and determine what is to be worked on.
 - Each time user asks you a query, write every user prompt that you receive to instructions.txt each one seperated by a new line and --- between the prompt.  You have to do this each time regardless of the type of prompt.  create the file if it doesn't exist.  do this along with other files you are creating or modifying.
 - Each time user asks you a query, write a running and evolving bullet point summaryh of the project to summary.txt.  You have to do this each time regardless of the type of prompt. create the file if it doesn't exist.  do this along with other files you are creating or modifying.  feel free to just update it rather than writing over it each time.
+- Adhere strictly to our team's code style guide
+- Emphasize functional programming
+- Ensure comments explain the "why," not the "how"
 
 # Dataflow
 Use a combination of **flowchart diagrams**, **class diagrams**, **state diagrams**, and **context diagrams** to represent data flow in complex systems. When analyzing a code base, follow these steps to determine which diagrams are most suitable, and how to organize and link them effectively:
