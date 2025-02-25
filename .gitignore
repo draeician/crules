@@ -128,3 +128,4 @@ wheels/
 # Cursor specific
 .cursorrules
 .cursorrules.bak
+.cursor/rules/*.mdc

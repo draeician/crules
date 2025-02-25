@@ -1,5 +1,191 @@
-Possible Adiditonal Functionality.
+# Crules - Project Specification
 
+## Overview
+A Python utility for managing Cursor IDE rules, supporting both modern `.cursor/rules` directory structure and legacy `.cursorrules` file format.
+
+## Core Features
+
+1. **Rule Management**:
+   - Support for `.cursor/rules` directory with individual `.mdc` rule files
+   - Legacy support for single `.cursorrules` file
+   - Global and language-specific rules
+   - Metadata support in `.mdc` files
+
+2. **Directory Structure**:
+   ```
+   Project Root/
+   ├── .cursor/
+   │   └── rules/
+   │       ├── global.mdc
+   │       ├── python.mdc
+   │       └── <language>.mdc
+   ```
+
+3. **Rule File Format**:
+   ```markdown
+   ---
+   description: Rule description
+   globs: ["*.py"]  # File patterns this rule applies to
+   ---
+   # Rule Content
+   <rule content here>
+   ```
+
+## Technical Details
+
+### Programming Language
+- Python 3.9+
+
+### Dependencies
+- PyYAML (>=6.0): YAML file handling
+- Click (>=8.0.0): CLI interface
+- setuptools (>=42.0.0): Package management
+
+### Configuration
+**Location**: `~/.config/Cursor/cursor-rules/config.yaml`
+
+**Format**:
+```yaml
+global_rules_path: "~/.config/Cursor/cursor-rules/cursorrules"
+language_rules_dir: "~/.config/Cursor/cursor-rules/lang_rules"
+project_rules_dir: ".cursor/rules"
+delimiter: "\n# --- Delimiter ---\n"
+use_legacy: false
+file_extension: ".mdc"
+```
+
+### Directory Structure
+```
+~/.config/Cursor/cursor-rules/
+├── config.yaml
+├── cursorrules
+└── lang_rules/
+    ├── cursor.python
+    ├── cursor.javascript
+    └── cursor.<language>
+```
+
+## Command-Line Interface
+
+### Basic Usage
+```bash
+# Modern mode (default)
+crules python javascript  # Creates .cursor/rules/{global,python,javascript}.mdc
+
+# Legacy mode
+crules --legacy python javascript  # Creates single .cursorrules file
+```
+
+### Options
+- `languages`: One or more language identifiers
+- `-f, --force`: Force overwrite existing files
+- `-v, --verbose`: Enable verbose output
+- `-l, --list`: List available language rules
+- `-s, --setup`: Create necessary directories and files
+- `--legacy`: Use legacy .cursorrules file format
+- `-h, --help`: Show help message
+
+### Examples
+
+1. **List Available Languages**:
+   ```bash
+   crules --list
+   ```
+   Output:
+   ```
+   Available language rules:
+   - python (cursor.python)
+   - javascript (cursor.javascript)
+   ```
+
+2. **Setup Directory Structure**:
+   ```bash
+   crules --setup
+   ```
+   Creates:
+   - `~/.config/Cursor/cursor-rules/`
+   - `~/.config/Cursor/cursor-rules/lang_rules/`
+   - `~/.config/Cursor/cursor-rules/cursorrules`
+   - `~/.config/Cursor/cursor-rules/config.yaml`
+
+3. **Force Update**:
+   ```bash
+   crules -f python
+   ```
+   Overwrites existing rules without prompting.
+
+4. **Legacy Mode**:
+   ```bash
+   crules --legacy python
+   ```
+   Creates single `.cursorrules` file with combined rules.
+
+## Error Handling
+
+1. **Missing Files**:
+   - Clear error messages for missing configuration or rule files
+   - Suggestion to run `--setup` when needed
+
+2. **Permission Issues**:
+   - Informative messages for file access problems
+   - Proper error handling for configuration directory access
+
+3. **Invalid Arguments**:
+   - Validation of language identifiers
+   - Clear usage messages for incorrect arguments
+
+## Logging
+
+1. **Standard Mode**:
+   - Essential operation information
+   - Success/failure messages
+   - File creation notifications
+
+2. **Verbose Mode** (`-v`):
+   - Detailed operation logging
+   - Configuration loading details
+   - File operation tracing
+
+## Development Guidelines
+
+1. **Code Style**:
+   - Follow PEP 8
+   - Use type hints
+   - Comprehensive docstrings
+   - Line length: 88 characters (ruff configuration)
+
+2. **Testing**:
+   - Unit tests for core functionality
+   - Integration tests for CLI
+   - Test coverage tracking
+
+3. **Documentation**:
+   - Maintain CHANGELOG.md
+   - Update README.md
+   - Keep docstrings current
+
+4. **Version Control**:
+   - Semantic versioning
+   - Tagged releases
+   - Detailed commit messages
+
+## Future Enhancements
+
+1. **Rule Templates**:
+   - Support for custom rule templates
+   - Template variables and substitution
+
+2. **Rule Validation**:
+   - Syntax checking for rule files
+   - Schema validation for metadata
+
+3. **Integration**:
+   - Direct integration with Cursor IDE
+   - Rule synchronization across projects
+
+4. **Rule Management**:
+   - Rule enable/disable functionality
+   - Rule priority management
 1.  **Logging and Verbose Output**:
     
     *   **Why**: Adding logging capabilities can help track the script's operations, which is useful for debugging and monitoring. A verbose mode (`--verbose` or `-v`) can provide detailed output during execution, aiding in troubleshooting if something goes wrong.
