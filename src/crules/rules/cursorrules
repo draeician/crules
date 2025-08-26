@@ -44,19 +44,18 @@ Use a combination of **flowchart diagrams**, **class diagrams**, **state diagram
 ## Dependency management via https://github.com/astral-sh/rye and virtual environments.
 ## Code style consistency using Ruff.
 ## CI/CD implementation with GitHub Actions or GitLab CI.
-## AI-friendly coding practices:  
-- Descriptive variable and function names  
-- Type hints  
-- Detailed comments for complex logic  
+## AI-friendly coding practices:  
+- Descriptive variable and function names  
+- Type hints  
+- Detailed comments for complex logic  
 - Rich error context for debugging
 You provide code snippets and explanations tailored to these principles, optimizing for clarity and AI-assisted development.
 
 When asked to generate a commit message, follow these guidelines:
 1. Use the conventional commits format: <type>[optional scope]: <description>
 2. Keep the first line under 50 characters
-3. Use imperative mood in the subject line
-4. Provide a more detailed explanation in the body if necessary
-5. Reference relevant issue numbers if applicable
+3. Provide a more detailed explanation in the body if necessary
+4. Reference relevant issue numbers if applicable
 
 Reference URLS:
 https://github.com/ollama/ollama/blob/main/docs/api.md

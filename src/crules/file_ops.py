@@ -1,10 +1,11 @@
 """File operations for crules."""
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Optional
 import logging
 import shutil
 import yaml
 from importlib import resources
+from .cursor_ops import CursorDirectoryManager
 
 logger = logging.getLogger(__name__)
 
@@ -90,8 +91,10 @@ def setup_directory_structure(verbose: bool = False, force: bool = False) -> boo
             default_config = {
                 "global_rules_path": str(global_rules),
                 "language_rules_dir": str(lang_rules_dir),
+                "project_rules_dir": ".cursor/rules",
                 "delimiter": "\n# --- Delimiter ---\n",
-                "backup_existing": True,
+                "use_legacy": False,
+                "file_extension": ".mdc"
             }
             with config_file.open('w') as f:
                 yaml.dump(default_config, f, default_flow_style=False)
@@ -223,3 +226,64 @@ def update_gitignore() -> None:
                 f.write(f'{entry}\n')
             
             logger.debug("Added Cursor entries to .gitignore")
+
+def write_rules_to_cursor_dir(
+    cursor_manager: CursorDirectoryManager,
+    global_rules: Path,
+    lang_rules_dir: Path,
+    languages: List[str],
+    force: bool = False
+) -> bool:
+    """Write rules to the .cursor/rules directory.
+    
+    Args:
+        cursor_manager: Instance of CursorDirectoryManager
+        global_rules: Path to global rules file
+        lang_rules_dir: Path to language rules directory
+        languages: List of language identifiers
+        force: Whether to force overwrite existing files
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        # Ensure .cursor structure exists
+        cursor_manager.ensure_cursor_structure()
+            
+        # Write global rules
+        try:
+            with global_rules.open() as f:
+                content = f.read()
+                metadata = {
+                    "description": "Global cursor rules",
+                    "globs": ["*"]
+                }
+                if not cursor_manager.create_rule_file("global", content, metadata):
+                    return False
+        except Exception as e:
+            logger.error(f"Failed to write global rules: {e}")
+            return False
+            
+        # Write language rules
+        for lang in languages:
+            try:
+                lang_file = lang_rules_dir / f"cursor.{lang}"
+                with lang_file.open() as f:
+                    content = f.read()
+                    metadata = {
+                        "description": f"Rules for {lang} development",
+                        "globs": [f"*.{lang}"]  # This is a simple glob pattern
+                    }
+                    if not cursor_manager.create_rule_file(lang, content, metadata):
+                        return False
+            except Exception as e:
+                logger.error(f"Failed to write {lang} rules: {e}")
+                return False
+                
+        # Update .gitignore
+        cursor_manager.update_gitignore()
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to write rules to .cursor directory: {e}")
+        return False

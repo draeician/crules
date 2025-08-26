@@ -1,5 +1,7 @@
 .specstory/
+.cursor
 research/
+THOUGHTS.md
 instructions.txt
 summary.txt
 terminal.txt
@@ -129,3 +131,4 @@ wheels/
 .cursorrules.bak
 .cursor/
 .cursorindexingignore
+.cursor/rules/*.mdc

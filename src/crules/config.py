@@ -9,12 +9,18 @@ logger = logging.getLogger(__name__)
 DEFAULT_CONFIG = {
     "global_rules_path": "~/.config/Cursor/cursor-rules/cursorrules",
     "language_rules_dir": "~/.config/Cursor/cursor-rules/lang_rules",
+    "project_rules_dir": ".cursor/rules",
     "delimiter": "\n# --- Delimiter ---\n",
-    "backup_existing": True,
+    "use_legacy": False,
+    "file_extension": ".mdc",
 }
 
 def load_config() -> Dict[str, Any]:
-    """Load configuration from YAML file or return defaults."""
+    """Load configuration from YAML file or return defaults.
+    
+    Returns:
+        Dict[str, Any]: Configuration dictionary with all settings
+    """
     config_path = Path("~/.config/Cursor/cursor-rules/config.yaml").expanduser()
     
     try:

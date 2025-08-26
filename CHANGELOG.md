@@ -1,15 +1,43 @@
 # Changelog
 
-## [0.1.2] - 2023-11-18
-### Added
-- Improved help messages with detailed option descriptions
-- Debug logging for rule file operations
-- Better error handling with full tracebacks in verbose mode
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.2.1] - 2024-03-26
 
 ### Changed
-- Enhanced --force behavior with --setup to update existing rules
-- Improved logging messages for file operations
-- Updated CLI documentation
+- Improved organization and clarity of default cursor rules
+- Enhanced documentation structure in default_cursorrules
+- Added comprehensive sections for AI integration, maintenance, and CI/CD
+- Removed redundancy in global rules
+
+## [0.2.0] - 2024-03-26
+
+### Added
+- Support for `.cursor/rules/` directory with individual `.mdc` rule files
+- Metadata support in `.mdc` files (description, globs)
+- New `CursorDirectoryManager` class for managing `.cursor` directory operations
+- Legacy mode support with `--legacy` flag for backward compatibility
+
+### Changed
+- Default output now uses `.cursor/rules/*.mdc` instead of single `.cursorrules` file
+- Updated configuration to support new directory structure
+- Improved error handling and logging
+- Updated `.gitignore` handling for `.cursor/rules/*.mdc`
+
+### Removed
+- Backup functionality (`.cursor/rules.bak`)
+- `backup_existing` configuration option
+
+## [0.1.2] - 2024-03-26
+
+### Added
+- Initial release
+- Support for generating `.cursorrules` file
+- Global and language-specific rules
+- Basic configuration management
 
 ## [0.1.1] - 2023-11-18
 ### Added

@@ -4,6 +4,7 @@ import logging
 import click
 from . import __version__
 from . import config, file_ops
+from .cursor_ops import CursorDirectoryManager
 
 logging.basicConfig(
     level=logging.INFO,
@@ -22,9 +23,14 @@ logger = logging.getLogger(__name__)
               help='List available language rules in the rules directory')
 @click.option('-s', '--setup', 'setup_dirs', is_flag=True, 
               help='Create or update necessary directories and rule files')
-def main(languages: tuple[str, ...], force: bool, verbose: bool, show_list: bool, setup_dirs: bool) -> None:
-    """Generate .cursorrules file combining global and language-specific rules.
-
+@click.option('--legacy', is_flag=True,
+              help='Use legacy .cursorrules file instead of .cursor/rules directory')
+def main(languages: tuple[str, ...], force: bool, verbose: bool, show_list: bool, setup_dirs: bool, legacy: bool) -> None:
+    """Generate cursor rules files.
+    
+    By default, creates individual rule files in .cursor/rules directory.
+    Use --legacy to generate a single .cursorrules file instead.
+    
     Use --setup to initialize or update the rules directory structure.
     Use --force with --setup to update existing rule files.
     Use --list to see available language rules.
@@ -67,22 +73,28 @@ def main(languages: tuple[str, ...], force: bool, verbose: bool, show_list: bool
         if not file_ops.check_files_exist(global_rules, lang_rules_dir, languages):
             raise click.ClickException("Required files not found")
             
-        # Handle existing files
-        if not file_ops.backup_existing_rules(force):
-            return
+        if legacy:
+            # Legacy mode: Create single .cursorrules file
+            if not file_ops.backup_existing_rules(force):
+                return
+                
+            content = file_ops.combine_rules(
+                global_rules, 
+                lang_rules_dir,
+                languages,
+                cfg['delimiter']
+            )
             
-        # Combine rules
-        content = file_ops.combine_rules(
-            global_rules, 
-            lang_rules_dir,
-            languages,
-            cfg['delimiter']
-        )
-        
-        # Write output file
-        output_file = Path(".cursorrules")
-        output_file.write_text(content)
-        logger.info(f"Successfully created {output_file}")
+            output_file = Path(".cursorrules")
+            output_file.write_text(content)
+            logger.info(f"Successfully created {output_file}")
+        else:
+            # New mode: Create files in .cursor/rules directory
+            cursor_manager = CursorDirectoryManager(cfg)
+            if file_ops.write_rules_to_cursor_dir(cursor_manager, global_rules, lang_rules_dir, languages, force):
+                logger.info("Successfully created rules in .cursor/rules directory")
+            else:
+                raise click.ClickException("Failed to create rules in .cursor/rules directory")
         
     except Exception as e:
         raise click.ClickException(str(e)) 
