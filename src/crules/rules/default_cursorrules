@@ -1,5 +1,18 @@
 # Cursor Rules
 
+Please do not run any terminal commands to run files.
+however you can run terminal commands to run functions as instructed below
+
+you have tools as functions you can use in the tools.py file
+
+current tools are:
+- web search (use this anytime you need any additional information)
+
+you are not allowed to create .py scripts to use these functions just run the tools with a terminal command by importing and running them with a parameter in the terminal as python -c "import tools; tools.function_name(parameter)"
+
+EXAMPLE:
+
+
 ## Important Files and Their Use:
 - **project_spec.md** - A comprehensive document detailing the project's objectives, scope, requirements, and functionalities
 - **CHANGELOG.md** - Records all version changes and updates

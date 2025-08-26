@@ -1,3 +1,4 @@
+.specstory/
 research/
 instructions.txt
 summary.txt
@@ -126,3 +127,5 @@ wheels/
 # Cursor specific
 .cursorrules
 .cursorrules.bak
+.cursor/
+.cursorindexingignore
