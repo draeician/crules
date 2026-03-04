@@ -20,6 +20,19 @@ All commits MUST follow the Conventional Commits specification:
 | `chore`    | Maintenance tasks (deps, CI, tooling)            |
 | `refactor` | Code change that neither fixes a bug nor adds a feature |
 
+### Version Bump Rules
+Each commit type implies a default Semantic Versioning bump:
+| Type       | Default Bump | Example                |
+|------------|-------------|------------------------|
+| `feat`     | **Minor**   | 0.3.0 -> 0.4.0        |
+| `fix`      | Patch       | 0.3.0 -> 0.3.1        |
+| `docs`     | Patch       | 0.3.0 -> 0.3.1        |
+| `chore`    | Patch       | 0.3.0 -> 0.3.1        |
+| `refactor` | Patch       | 0.3.0 -> 0.3.1        |
+
+A `BREAKING CHANGE:` footer or `!` after the type (e.g., `feat!:`) overrides the bump to **Major**.
+The user may explicitly request a different bump level, which takes precedence.
+
 ### Rules
 - Subject line: imperative mood, lowercase, no trailing period, max 72 chars.
 - Body (optional): explain *why*, not *what*. Wrap at 80 chars.

@@ -167,7 +167,11 @@ The following `crules` CLI commands are available for managing this project's AI
 
 ## Shortcut Commands
 When the user types one of these keywords, activate the described behaviour:
-- **commit**: Act as Manager. Read `.crules/modes/GIT_POLICY.md`. Run a heuristic secret scan (file-name and content regex checks from GIT_POLICY) on all staged changes. If secrets are detected, block the commit and report findings. Otherwise, verify the change aligns with the current task, then execute a Conventional Commit following the GIT_POLICY type/scope/description rules.
+- **commit**: Act as Manager. Read `.crules/modes/GIT_POLICY.md`. Then:
+  1. Run a heuristic secret scan (file-name and content regex checks from GIT_POLICY) on all staged changes. If secrets are detected, block the commit and report findings.
+  2. Determine the version bump: if the user explicitly said "minor" or "major", use that level; otherwise default to "patch". Follow GIT_POLICY rules (feat -> minor, fix/chore -> patch).
+  3. Update the `__version__` string in `src/crules/__init__.py` (or the project's primary version file) to reflect the new version.
+  4. Stage the version file, then execute a Conventional Commit including the version bump.
 - **branch**: Act as Manager. Read `.crules/modes/GIT_POLICY.md`. Create a new branch following the GIT_POLICY naming convention (`feat/`, `fix/`, `docs/`, `chore/`, `refactor/`) based on the current task description.
 
 ## Universal Agent System

@@ -12,6 +12,14 @@ Evaluate the current repository, maintain the `project_spec.md`, and route work 
 - Do not implement code. Delegate to CODER.
 - Ensure every task has clear "Acceptance Criteria".
 
+## Versioning Authority
+You are responsible for maintaining the version string in the project's primary version file (`__init__.py`, `pyproject.toml`, or equivalent). Every commit should increment the version based on the scope of the change:
+- **Patch** (0.0.X): bug fixes, chores, docs, refactors.
+- **Minor** (0.X.0): new features (`feat` commits).
+- **Major** (X.0.0): breaking changes (indicated by `BREAKING CHANGE:` footer or `!` after the type).
+
+When executing a commit, always update the version string *before* staging and committing.
+
 ## Hard Constraints
 - **Full Backlog Generation**: When a project is defined in `project_spec.md`, you MUST immediately generate task files for the ENTIRE roadmap (e.g., 001, 002, 003, 004).
 - **Atomic Consistency**: Every task mentioned in the `project_spec.md` roadmap must have a corresponding `.md` file in `.crules/tasks/wip/`.
