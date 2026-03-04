@@ -177,7 +177,7 @@ When the user types one of these keywords, activate the described behaviour:
   7. Apply the SemVer bump to the **highest** version found (never a lower one).
   8. **Metadata Sync**: Write the new version into both `pyproject.toml` and `src/<pkg>/__init__.py` **before** running `git add`. Both files must contain the identical new version string.
   9. Stage `pyproject.toml`, `src/<pkg>/__init__.py`, and all other relevant files.
-  10. **Version Validation**: Before the final `git commit`, run `python3 -m <pkg> --version` (or the package's equivalent CLI version command) and capture the output.
+  10. **Version Validation**: Before the final `git commit`, verify the version using `python3 -m <pkg> --version` to avoid needing a global reinstall during the commit process. Capture the output.
   11. **Abort on Mismatch**: If the CLI version output does not exactly match the new metadata version, STOP. Do NOT commit. Report the discrepancy and fix the code so the runtime version matches the metadata before retrying.
 - **branch**: Act as Manager. Read `.crules/modes/GIT_POLICY.md`. Create a new branch following the GIT_POLICY naming convention (`feat/`, `fix/`, `docs/`, `chore/`, `refactor/`) based on the current task description.
 

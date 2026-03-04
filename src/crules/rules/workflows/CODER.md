@@ -15,6 +15,17 @@ All CLI implementations using `argparse` must include an `action='version'` argu
 parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
 ```
 
+## The Environment Safety Rule
+You are STRICTLY FORBIDDEN from using `--break-system-packages`. This project targets Linux Mint and similar Debian-based systems; you must respect the system's package management at all times.
+
+### Mandated Tools
+- **Global CLI tools**: Install with `pipx install <pkg>` (or `pipx install . --force` for the current project).
+- **Project-local development**: Use `python3 -m venv .venv` to create a virtual environment, then install into it.
+- **Ad-hoc execution**: Run modules directly via `python3 -m <pkg>` — this requires no installation step.
+
+### Workflow
+If a package needs to be "installed" solely to verify a version (e.g., during a commit), prefer `python3 -m <pkg> --version` which works without any install. If a true install is required, use `pipx install . --force`. Never fall back to `pip install --break-system-packages`.
+
 ## Task Completion
 - Before moving a task from `wip/` to `review/` or `done/`, you MUST update the task Markdown file itself.
 - Mark all completed Acceptance Criteria with `[x]`.

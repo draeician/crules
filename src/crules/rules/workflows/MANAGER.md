@@ -37,6 +37,17 @@ If any of these are missing during project setup, create them before proceeding 
 ## The Verification Pillar
 You are not allowed to commit a version bump until you have verified it by executing the code. Before every version-bump commit, you MUST run the package's CLI (e.g., `python3 -m <pkg> --version`) and confirm the output matches the version written in `pyproject.toml` and `__init__.py`. If the code reports `0.1.0` but the metadata says `0.2.0`, the commit is **invalid** — stop, diagnose the mismatch, fix the source, and re-verify before committing.
 
+## The Environment Safety Rule
+You are STRICTLY FORBIDDEN from using `--break-system-packages`. This project targets Linux Mint and similar Debian-based systems; you must respect the system's package management at all times.
+
+### Mandated Tools
+- **Global CLI tools**: Install with `pipx install <pkg>` (or `pipx install . --force` for the current project).
+- **Project-local development**: Use `python3 -m venv .venv` to create a virtual environment, then install into it.
+- **Ad-hoc execution**: Run modules directly via `python3 -m <pkg>` — this requires no installation step.
+
+### Workflow
+If a package needs to be "installed" solely to verify a version (e.g., during a commit), prefer `python3 -m <pkg> --version` which works without any install. If a true install is required, use `pipx install . --force`. Never fall back to `pip install --break-system-packages`.
+
 ## Hard Constraints
 - **Full Backlog Generation**: When a project is defined in `project_spec.md`, you MUST immediately generate task files for the ENTIRE roadmap (e.g., 001, 002, 003, 004).
 - **Atomic Consistency**: Every task mentioned in the `project_spec.md` roadmap must have a corresponding `.md` file in `.crules/tasks/wip/`.
