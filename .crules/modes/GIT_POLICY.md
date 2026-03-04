@@ -89,3 +89,7 @@ The Manager SHOULD verify that `.gitignore` contains entries for at least:
 *.key
 credentials.json
 ```
+
+## Release Protocol
+
+A release is only official once a git tag is pushed. Use the `release` shortcut to ensure tags always match the internal metadata.

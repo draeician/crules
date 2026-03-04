@@ -180,6 +180,12 @@ When the user types one of these keywords, activate the described behaviour:
   10. **Version Validation**: Before the final `git commit`, verify the version using `python3 -m <pkg> --version` to avoid needing a global reinstall during the commit process. Capture the output.
   11. **Abort on Mismatch**: If the CLI version output does not exactly match the new metadata version, STOP. Do NOT commit. Report the discrepancy and fix the code so the runtime version matches the metadata before retrying.
 - **branch**: Act as Manager. Read `.crules/modes/GIT_POLICY.md`. Create a new branch following the GIT_POLICY naming convention (`feat/`, `fix/`, `docs/`, `chore/`, `refactor/`) based on the current task description.
+- **release**: Act as Manager.
+  a. **Verify**: Run `python3 -m <pkg_name> --version` to ensure it matches pyproject.toml.
+  b. **Changelog**: Summarize all 'feat' and 'fix' commits since the last git tag.
+  c. **Tag**: Create a git tag for the current version (e.g., v0.5.1).
+  d. **Push**: Execute `git push origin main --tags`.
+  e. **Announce**: Provide a summary of the release for a GitHub Release description.
 
 ## Universal Agent System
 - **Context Discovery**: Upon first run, you must read `.crules/modes/` to determine your current active persona (Manager or Coder).
