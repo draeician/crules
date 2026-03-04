@@ -283,7 +283,7 @@ def bootstrap_swarm(config: dict) -> bool:
 
         workflows_src = Path("~/.config/crules/workflows").expanduser()
         modes_dest = crules_dir / "modes"
-        for filename in ("MANAGER.md", "CODER.md"):
+        for filename in ("MANAGER.md", "CODER.md", "GIT_POLICY.md"):
             dest = modes_dest / filename
             if dest.exists():
                 logger.info(f"{filename} already exists in {modes_dest}, skipping")

@@ -165,6 +165,11 @@ The following `crules` CLI commands are available for managing this project's AI
 - `crules --legacy`: Generate a single `.cursorrules` file instead of per-IDE directories.
 - `crules --verbose` (`-v`): Enable detailed debug logging.
 
+## Shortcut Commands
+When the user types one of these keywords, activate the described behaviour:
+- **commit**: Act as Manager. Read `.crules/modes/GIT_POLICY.md`. Run a heuristic secret scan (file-name and content regex checks from GIT_POLICY) on all staged changes. If secrets are detected, block the commit and report findings. Otherwise, verify the change aligns with the current task, then execute a Conventional Commit following the GIT_POLICY type/scope/description rules.
+- **branch**: Act as Manager. Read `.crules/modes/GIT_POLICY.md`. Create a new branch following the GIT_POLICY naming convention (`feat/`, `fix/`, `docs/`, `chore/`, `refactor/`) based on the current task description.
+
 ## Universal Agent System
 - **Context Discovery**: Upon first run, you must read `.crules/modes/` to determine your current active persona (Manager or Coder).
 - **State Management**: Reference `summary.txt` and `instructions.txt` for cross-session continuity.

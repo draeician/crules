@@ -134,3 +134,7 @@ wheels/
 .cursor/
 .cursorindexingignore
 .cursor/rules/*.mdc
+
+# Crules specific
+.claude/rules/*.md
+.github/instructions/*.instructions.md
