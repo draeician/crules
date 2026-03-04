@@ -1,205 +1,90 @@
-# Crules - Omni-Assistant Rules Generator
+# Crules - Omni-Assistant Context Compiler
 
-A Python utility that acts as a **Context Compiler**, turning a single set of universal rules into the native formats required by multiple AI coding assistants:
+A Python utility that acts as a **Swarm Infrastructure Deployer**, turning a single set of universal rules into native formats for multiple AI coding assistants while establishing a self-configuring agent ecosystem.
+
+## The Crules Philosophy: "Skeleton Swarms"
+Unlike hardcoded instruction sets, `crules` deploys a generic, role-based architecture into your repository. It provides the **Skeleton**, and your AI Agent (Cursor, Claude Code, Aider, etc.) provides the **Brain**. Upon landing in a "bootstrapped" repo, the AI is instructed to evaluate the codebase, update the project specifications, and self-configure its own operating modes.
 
 | Assistant | Output Directory | File Extension | Metadata Key |
 |-----------|-----------------|----------------|--------------|
-| Cursor | `.cursor/rules/` | `.mdc` | `globs` |
-| Claude Code | `.claude/rules/` | `.md` | `paths` |
-| GitHub Copilot | `.github/instructions/` | `.instructions.md` | `applyTo` |
+| **Cursor** | `.cursor/rules/` | `.mdc` | `globs` |
+| **Claude Code** | `.claude/rules/` | `.md` | `paths` |
+| **GitHub Copilot** | `.github/instructions/` | `.instructions.md` | `applyTo` |
 
-## Features
+## Core Features
 
-- Compiles one source of truth into native rule files for Cursor, Claude Code, and GitHub Copilot
-- Automatically translates glob patterns into each tool's metadata dialect
-- Injects a Universal Preamble into every generated file for consistent AI behavior
-- Per-tool toggles — enable or disable any assistant via config or CLI flags
-- `--target` flag to generate rules for specific tools in a single invocation
-- Legacy mode (`--legacy`) for backward-compatible `.cursorrules` output
-- Supports multiple programming languages with per-language rule files
-- Configurable via YAML
+- [cite_start]**Multi-Agent Compilation**: Compiles one source of truth into native rule files for all major IDE assistants[cite: 1, 19].
+- [cite_start]**Swarm Bootstrapping**: Initializes a `.crules/` directory with `MANAGER` and `CODER` personas and a task tracking system[cite: 71, 73].
+- [cite_start]**Self-Evaluating Spec**: Generates a skeleton `project_spec.md` that triggers the AI to perform an automated repository audit[cite: 18, 21].
+- [cite_start]**Universal Preamble**: Injects a standardized preamble into every file to ensure the AI prioritizes the `project_spec.md` as the ultimate source of truth[cite: 19, 79].
+- **Cross-IDE Continuity**: Uses `summary.txt` and `instructions.txt` as a "flight recorder" for handoffs between different tools.
 
 ## Installation
 
-1. Clone the repository:
 ```bash
-git clone https://github.com/draeician/crules.git
+git clone [https://github.com/draeician/crules.git](https://github.com/draeician/crules.git)
 cd crules
-```
+pipx install . --force
 
-2. Install using pipx (recommended):
-```bash
-pipx install .
-```
-
-> **Note:** If you encounter an "externally-managed-environment" error, create a virtual environment:
-> ```bash
-> python3 -m venv .venv
-> source .venv/bin/activate
-> pip install .
-> ```
-
-## Configuration
-
-The default configuration file is located at `~/.config/crules/config.yaml`:
-
-```yaml
-global_rules_path: "~/.config/crules/cursorrules"
-language_rules_dir: "~/.config/crules/lang_rules"
-enable_cursor: true
-enable_claude: true
-enable_copilot: true
-delimiter: "\n# --- Delimiter ---\n"
-```
-
-Set any `enable_*` toggle to `false` to skip that assistant during generation.
-
-### Source Directory Structure
-
-```
-~/.config/crules/
-├── config.yaml
-├── cursorrules              # global rules (applied to all files)
-└── lang_rules/
-    ├── cursor.python
-    ├── cursor.javascript
-    └── cursor.<language>
 ```
 
 ## Usage
 
-### First-Time Setup
+### 1. Initialize Global Config
+
+Creates `~/.config/crules/` with global rules, language templates, and swarm workflow modes.
 
 ```bash
 crules --setup
+
 ```
 
-### Generate Rules for All Enabled Assistants
+### 2. Bootstrap a Repository
+
+Deploy the Swarm Infrastructure and the Repository Evaluator into your current project.
 
 ```bash
-crules python javascript
+crules --bootstrap
+
 ```
 
-### Target Specific Assistants
+*Creates: `.crules/tasks/`, `.crules/modes/`, and `project_spec.md`.*
+
+### 3. Generate Language Context
+
+Compile specific programming language rules for all enabled assistants.
 
 ```bash
-# Only Cursor and Claude Code
+# Add Python and Bash rules across all tools
+crules python bash
+
+# Target only specific assistants
 crules -t cursor -t claude python
 
-# Only GitHub Copilot
-crules --target copilot python rust
 ```
 
-### List Available Languages
+## The Swarm Workflow
 
-```bash
-crules --list
-```
+Once a repo is bootstrapped, your AI assistant will follow this loop:
 
-### Legacy Mode
+1. **Discovery**: AI reads the native rules and adopts the **Manager** persona.
+2. **Evaluation**: AI scans the repo and populates the `project_spec.md`.
+3. **Tasking**: AI creates task files in `.crules/tasks/wip/`.
+4. **Execution**: AI switches to **Coder** mode to implement features based on the `project_spec.md`.
 
-Generate a single `.cursorrules` file (pre-0.2 behavior):
+## Configuration
 
-```bash
-crules --legacy python javascript
-```
+Managed via `~/.config/crules/config.yaml`:
 
-### Additional Options
-
-```bash
-crules -f python        # force overwrite existing rule files
-crules -v python        # enable verbose logging
-crules --help           # show all options
-```
-
-## Command-Line Options
-
-| Option | Description |
-|--------|-------------|
-| `languages` | One or more language identifiers |
-| `-t, --target` | AI tool to generate for (repeatable: `cursor`, `claude`, `copilot`) |
-| `-f, --force` | Force overwrite of existing files |
-| `-v, --verbose` | Enable verbose output |
-| `-l, --list` | List available language rules |
-| `-s, --setup` | Create necessary directories and files |
-| `--legacy` | Generate a single `.cursorrules` file |
-| `--version` | Show version |
-| `--help` | Show help message |
-
-## Generated Output
-
-Running `crules python` with all assistants enabled produces:
+```yaml
+enable_cursor: true
+enable_claude: true
+enable_copilot: true
+global_rules_path: "~/.config/crules/cursorrules"
+language_rules_dir: "~/.config/crules/lang_rules"
 
 ```
-project/
-├── .cursor/rules/
-│   ├── global.mdc
-│   └── python.mdc
-├── .claude/rules/
-│   ├── global.md
-│   └── python.md
-└── .github/instructions/
-    ├── global.instructions.md
-    └── python.instructions.md
-```
-
-Each file contains YAML frontmatter with tool-native metadata and the Universal Preamble, followed by the rule content.
-
-## Development
-
-### Requirements
-
-- Python 3.9+
-- PyYAML
-- Click
-
-### Project Structure
-
-```
-crules/
-├── src/
-│   └── crules/
-│       ├── __init__.py
-│       ├── __main__.py
-│       ├── cli.py
-│       ├── config.py
-│       ├── ai_managers.py
-│       ├── cursor_ops.py
-│       └── file_ops.py
-├── tests/
-│   └── test_ai_managers.py
-├── pyproject.toml
-├── CHANGELOG.md
-└── README.md
-```
-
-### Setting Up Development Environment
-
-```bash
-git clone https://github.com/draeician/crules.git
-cd crules
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
-```
-
-### Running Tests
-
-```bash
-pytest tests/ -v
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-[![PyPI version](https://badge.fury.io/py/crules.svg)](https://badge.fury.io/py/crules)
-[![Python versions](https://img.shields.io/pypi/pyversions/crules.svg)](https://pypi.org/project/crules/)
+MIT License - Copyright (c) 2023-2026 draeician.

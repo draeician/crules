@@ -47,6 +47,32 @@ def copy_predefined_rules(lang_rules_dir: Path, verbose: bool = False, force: bo
         logger.error(f"Failed to copy predefined rules: {e}")
         raise  # Re-raise to see full traceback in verbose mode
 
+def copy_workflow_files(workflows_dir: Path, verbose: bool = False, force: bool = False) -> None:
+    """Copy workflow mode files (MANAGER.md, CODER.md) to the workflows directory."""
+    try:
+        with resources.as_file(resources.files('crules.rules.workflows')) as wf_path:
+            if not wf_path.is_dir():
+                logger.warning("No workflow files found in package")
+                return
+
+            for md_file in wf_path.glob('*.md'):
+                try:
+                    dest_file = workflows_dir / md_file.name
+                    if force or not dest_file.exists():
+                        dest_file.write_text(md_file.read_text())
+                        if verbose:
+                            logger.info(f"{'Updated' if dest_file.exists() else 'Copied'} workflow: {md_file.name}")
+                    elif verbose:
+                        logger.info(f"Skipped existing workflow: {md_file.name}")
+                except Exception as e:
+                    logger.error(f"Failed to copy {md_file.name}: {e}")
+                    raise
+
+    except Exception as e:
+        logger.error(f"Failed to copy workflow files: {e}")
+        raise
+
+
 def setup_directory_structure(verbose: bool = False, force: bool = False) -> bool:
     """Create necessary directories and files for crules.
     
@@ -57,6 +83,7 @@ def setup_directory_structure(verbose: bool = False, force: bool = False) -> boo
     try:
         base_dir = Path("~/.config/crules").expanduser()
         lang_rules_dir = base_dir / "lang_rules"
+        workflows_dir = base_dir / "workflows"
         config_file = base_dir / "config.yaml"
         global_rules = base_dir / "cursorrules"
 
@@ -69,8 +96,15 @@ def setup_directory_structure(verbose: bool = False, force: bool = False) -> boo
         if verbose:
             logger.info(f"Created directory: {lang_rules_dir}")
 
+        workflows_dir.mkdir(exist_ok=True)
+        if verbose:
+            logger.info(f"Created directory: {workflows_dir}")
+
         # Copy predefined language rules
         copy_predefined_rules(lang_rules_dir, verbose, force)
+
+        # Copy workflow mode files
+        copy_workflow_files(workflows_dir, verbose, force)
 
         # Create or update global rules file
         if not global_rules.exists() or force:
@@ -226,6 +260,141 @@ def update_gitignore() -> None:
                 f.write(f'{entry}\n')
             
             logger.debug("Added Cursor entries to .gitignore")
+
+def bootstrap_swarm(config: dict) -> bool:
+    """Initialize the generic Swarm infrastructure in the current repo.
+
+    Creates the local `.crules/` directory tree, copies workflow mode files
+    from the global config, scaffolds a `project_spec.md` when absent, and
+    deploys the Universal Agent System instructions to all enabled IDE rule
+    folders via `write_rules_to_ai_dirs`.
+
+    Args:
+        config: Configuration dict loaded from crules config.
+
+    Returns:
+        True if all steps succeeded, False otherwise.
+    """
+    try:
+        crules_dir = Path(".crules")
+        for sub in ("tasks/wip", "tasks/review", "tasks/done", "modes"):
+            (crules_dir / sub).mkdir(parents=True, exist_ok=True)
+        logger.info("Created .crules directory structure")
+
+        workflows_src = Path("~/.config/crules/workflows").expanduser()
+        modes_dest = crules_dir / "modes"
+        for filename in ("MANAGER.md", "CODER.md"):
+            dest = modes_dest / filename
+            if dest.exists():
+                logger.info(f"{filename} already exists in {modes_dest}, skipping")
+                continue
+
+            config_src = workflows_src / filename
+            if config_src.exists():
+                shutil.copy2(config_src, dest)
+                logger.info(f"Copied {filename} from config to {modes_dest}")
+                continue
+
+            try:
+                pkg_content = (
+                    resources.files("crules.rules.workflows")
+                    .joinpath(filename)
+                    .read_text()
+                )
+                dest.write_text(pkg_content)
+                logger.info(f"Copied {filename} from package resources to {modes_dest}")
+            except Exception:
+                logger.warning(f"Workflow template {filename} not found in config or package resources, skipping")
+
+        project_spec = Path("project_spec.md")
+        if not project_spec.exists():
+            project_spec.write_text(
+                "# Project Specification\n\n"
+                "## Status\n"
+                "- [ ] REPO EVALUATION REQUIRED: "
+                "Act as Manager to initialize this document.\n"
+            )
+            logger.info("Created skeleton project_spec.md")
+        else:
+            logger.info("project_spec.md already exists, skipping")
+
+        global_rules = Path(config["global_rules_path"]).expanduser()
+        lang_rules_dir = Path(config["language_rules_dir"]).expanduser()
+
+        if not global_rules.exists():
+            logger.info("Global config not found, running initial setup...")
+            if not setup_directory_structure():
+                logger.error("Failed to initialize config directory")
+                return False
+
+        config.setdefault("enable_cursor", True)
+        config.setdefault("enable_claude", True)
+        config.setdefault("enable_copilot", True)
+
+        if not write_rules_to_ai_dirs(config, global_rules, lang_rules_dir, []):
+            logger.error("Failed to deploy global rules to AI directories")
+            return False
+
+        logger.info("Swarm bootstrap complete")
+        return True
+
+    except Exception as e:
+        logger.error(f"Bootstrap failed: {e}")
+        return False
+
+
+def sync_modes(config: dict) -> bool:
+    """Copy workflow mode files from global config into the local .crules/modes/ directory,
+    then refresh the IDE rule folders with the latest global rules.
+
+    Args:
+        config: Configuration dict loaded from crules config.
+
+    Returns:
+        True if sync succeeded, False otherwise.
+    """
+    try:
+        workflows_src = Path("~/.config/crules/workflows").expanduser()
+        modes_dest = Path(".crules/modes")
+        modes_dest.mkdir(parents=True, exist_ok=True)
+
+        if not workflows_src.exists():
+            logger.warning(f"Global workflows directory not found: {workflows_src}")
+            logger.info("Run 'crules --setup' first to create workflow templates.")
+            return False
+
+        copied = 0
+        for md_file in workflows_src.glob("*.md"):
+            dest = modes_dest / md_file.name
+            shutil.copy2(md_file, dest)
+            logger.info(f"Synced {md_file.name} -> {modes_dest}")
+            copied += 1
+
+        if copied == 0:
+            logger.warning("No workflow files found to sync")
+
+        global_rules = Path(config["global_rules_path"]).expanduser()
+        lang_rules_dir = Path(config["language_rules_dir"]).expanduser()
+
+        if not global_rules.exists():
+            logger.warning("Global rules file not found, skipping IDE refresh")
+            return True
+
+        config.setdefault("enable_cursor", True)
+        config.setdefault("enable_claude", True)
+        config.setdefault("enable_copilot", True)
+
+        if not write_rules_to_ai_dirs(config, global_rules, lang_rules_dir, []):
+            logger.error("Failed to refresh IDE rule folders")
+            return False
+
+        logger.info("IDE rule folders refreshed")
+        return True
+
+    except Exception as e:
+        logger.error(f"Sync failed: {e}")
+        return False
+
 
 def write_rules_to_ai_dirs(
     config: dict,

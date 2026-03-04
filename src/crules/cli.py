@@ -30,9 +30,13 @@ logger = logging.getLogger(__name__)
               type=click.Choice(VALID_TARGETS, case_sensitive=False),
               help='AI tool targets to generate rules for (may be repeated). '
                    'Defaults to all enabled targets in config.')
+@click.option('-b', '--bootstrap', is_flag=True,
+              help='Initialize the generic Swarm infrastructure in a repo.')
+@click.option('-S', '--sync', 'sync_modes_flag', is_flag=True,
+              help='Sync workflow modes from global config into the local .crules/modes/ directory.')
 def main(languages: tuple[str, ...], force: bool, verbose: bool,
          show_list: bool, setup_dirs: bool, legacy: bool,
-         targets: tuple[str, ...]) -> None:
+         targets: tuple[str, ...], bootstrap: bool, sync_modes_flag: bool) -> None:
     """Generate AI assistant rules files.
     
     By default, creates rule files for all enabled assistants (Cursor, Claude, Copilot).
@@ -40,6 +44,8 @@ def main(languages: tuple[str, ...], force: bool, verbose: bool,
     Use --legacy to generate a single .cursorrules file instead.
     
     Use --setup to initialize or update the rules directory structure.
+    Use --bootstrap to initialize the generic Swarm infrastructure in a repo.
+    Use --sync to refresh local .crules/modes/ from global workflow templates.
     Use --force with --setup to update existing rule files.
     Use --list to see available language rules.
     Use --verbose for detailed operation logging.
@@ -59,6 +65,25 @@ def main(languages: tuple[str, ...], force: bool, verbose: bool,
 
         # Load configuration
         cfg = config.load_config()
+
+        # Handle --bootstrap option
+        if bootstrap:
+            logger.info("Bootstrapping Swarm infrastructure...")
+            if file_ops.bootstrap_swarm(cfg):
+                logger.info("Bootstrap complete!")
+            else:
+                raise click.ClickException("Bootstrap failed")
+            return
+
+        # Handle --sync option
+        if sync_modes_flag:
+            logger.info("Syncing workflow modes...")
+            if file_ops.sync_modes(cfg):
+                logger.info("Sync complete!")
+            else:
+                raise click.ClickException("Sync failed")
+            return
+
         global_rules = Path(cfg['global_rules_path']).expanduser()
         lang_rules_dir = Path(cfg['language_rules_dir']).expanduser()
         

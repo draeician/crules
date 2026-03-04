@@ -35,12 +35,15 @@ crules = "crules.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["crules", "crules.rules"]
+packages = ["crules", "crules.rules", "crules.rules.workflows"]
 
 [tool.setuptools.package-data]
 "crules.rules" = [
     "cursor.*",
     "default_cursorrules"
+]
+"crules.rules.workflows" = [
+    "*.md"
 ]
 
 [build-system]

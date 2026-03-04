@@ -1,8 +1,10 @@
 """Tests for ai_managers module."""
 import pytest
 from pathlib import Path
+from importlib import resources
 import yaml
 from crules.ai_managers import CursorManager, ClaudeManager, CopilotManager
+from crules import file_ops
 
 
 @pytest.fixture
@@ -20,6 +22,44 @@ def chdir_tmp(tmp_path, monkeypatch):
     """Change working directory to tmp_path for the duration of the test."""
     monkeypatch.chdir(tmp_path)
     return tmp_path
+
+
+@pytest.fixture
+def bootstrap_env(tmp_path, monkeypatch):
+    """Isolated environment for bootstrap tests.
+
+    Sets HOME to a fake directory inside tmp_path so that
+    ``~/.config/crules/workflows`` resolves predictably, then seeds
+    the config dir with a global-rules file and workflow templates.
+    """
+    monkeypatch.chdir(tmp_path)
+
+    fake_home = tmp_path / "fakehome"
+    monkeypatch.setenv("HOME", str(fake_home))
+
+    config_base = fake_home / ".config" / "crules"
+    global_rules = config_base / "cursorrules"
+    lang_rules_dir = config_base / "lang_rules"
+    workflows_dir = config_base / "workflows"
+
+    for d in (config_base, lang_rules_dir, workflows_dir):
+        d.mkdir(parents=True)
+
+    global_rules.write_text("# Global rules content\n")
+
+    with resources.as_file(resources.files("crules.rules.workflows")) as wf_src:
+        for md in wf_src.glob("*.md"):
+            (workflows_dir / md.name).write_text(md.read_text())
+
+    cfg = {
+        "global_rules_path": str(global_rules),
+        "language_rules_dir": str(lang_rules_dir),
+        "file_extension": ".mdc",
+        "enable_cursor": True,
+        "enable_claude": True,
+        "enable_copilot": True,
+    }
+    return tmp_path, cfg
 
 
 # --------------- helpers ---------------
@@ -190,3 +230,40 @@ class TestUniversalPreamble:
         text = (chdir_tmp / subdir / f"global{ext}").read_text()
         assert "# Universal AI Context" in text
         assert "project_spec.md" in text
+
+
+# --------------- Swarm Bootstrap ---------------
+
+class TestSwarmBootstrap:
+    def test_bootstrap_structure(self, bootstrap_env):
+        project_dir, cfg = bootstrap_env
+
+        assert file_ops.bootstrap_swarm(cfg) is True
+
+        for sub in ("tasks/wip", "tasks/review", "tasks/done", "modes"):
+            assert (project_dir / ".crules" / sub).is_dir(), (
+                f".crules/{sub} was not created"
+            )
+
+        spec = project_dir / "project_spec.md"
+        assert spec.exists(), "project_spec.md was not created"
+        spec_text = spec.read_text()
+        assert "# Project Specification" in spec_text
+        assert "EVALUATION REQUIRED" in spec_text
+
+    def test_workflow_template_copy(self, bootstrap_env):
+        project_dir, cfg = bootstrap_env
+
+        assert file_ops.bootstrap_swarm(cfg) is True
+
+        modes_dir = project_dir / ".crules" / "modes"
+        for filename in ("MANAGER.md", "CODER.md"):
+            mode_file = modes_dir / filename
+            assert mode_file.exists(), f"{filename} not found in .crules/modes/"
+            assert mode_file.stat().st_size > 0, f"{filename} is empty"
+
+        global_rule = project_dir / ".cursor" / "rules" / "global.mdc"
+        assert global_rule.exists(), "global.mdc not deployed during bootstrap"
+        rule_text = global_rule.read_text()
+        assert "# Universal AI Context" in rule_text
+        assert "project_spec.md" in rule_text
