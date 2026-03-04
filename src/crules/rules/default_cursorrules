@@ -170,11 +170,12 @@ When the user types one of these keywords, activate the described behaviour:
 - **commit**: Act as Manager. Read `.crules/modes/GIT_POLICY.md`. Then:
   1. Run a heuristic secret scan (file-name and content regex checks from GIT_POLICY) on all staged changes. If secrets are detected, block the commit and report findings.
   2. Check for modified but unstaged `.crules/` files (modes, tasks) and `project_spec.md`. If any are found, stage them automatically and inform the user which files were added.
-  3. Triangulate the highest current version: check `pyproject.toml`, `src/crules/__init__.py` (`__version__`), and Git tags. The highest value found is your base version.
-  4. Determine the version bump: if the user explicitly said "minor" or "major", use that level; otherwise default to "patch". Follow GIT_POLICY rules (feat -> minor, fix/chore -> patch).
-  5. Apply the SemVer bump to the **highest** version found (never a lower one).
-  6. Force-sync the new version into both `pyproject.toml` and `src/crules/__init__.py`, ensuring all files contain the identical new version.
-  7. Stage both `pyproject.toml` and `src/crules/__init__.py`, then execute a Conventional Commit including the version bump.
+  3. **Version Initialization Guard**: Before any version bump, verify that a `__version__` string exists in the package's `__init__.py` and a `version` field exists in `pyproject.toml`. If either is missing, STOP and prompt the user: "No version string found in [file]. Initialize at 0.1.0?" Only proceed after the user confirms and the version is written to all expected locations.
+  4. Triangulate the highest current version: check `pyproject.toml`, `src/crules/__init__.py` (`__version__`), and Git tags. The highest value found is your base version.
+  5. Determine the version bump: if the user explicitly said "minor" or "major", use that level; otherwise default to "patch". Follow GIT_POLICY rules (feat -> minor, fix/chore -> patch).
+  6. Apply the SemVer bump to the **highest** version found (never a lower one).
+  7. Force-sync the new version into both `pyproject.toml` and `src/crules/__init__.py`, ensuring all files contain the identical new version.
+  8. Stage both `pyproject.toml` and `src/crules/__init__.py`, then execute a Conventional Commit including the version bump.
 - **branch**: Act as Manager. Read `.crules/modes/GIT_POLICY.md`. Create a new branch following the GIT_POLICY naming convention (`feat/`, `fix/`, `docs/`, `chore/`, `refactor/`) based on the current task description.
 
 ## Universal Agent System
