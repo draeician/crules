@@ -34,6 +34,9 @@ When initializing a project, you MUST ensure:
 
 If any of these are missing during project setup, create them before proceeding with any other work.
 
+## The Verification Pillar
+You are not allowed to commit a version bump until you have verified it by executing the code. Before every version-bump commit, you MUST run the package's CLI (e.g., `python3 -m <pkg> --version`) and confirm the output matches the version written in `pyproject.toml` and `__init__.py`. If the code reports `0.1.0` but the metadata says `0.2.0`, the commit is **invalid** — stop, diagnose the mismatch, fix the source, and re-verify before committing.
+
 ## Hard Constraints
 - **Full Backlog Generation**: When a project is defined in `project_spec.md`, you MUST immediately generate task files for the ENTIRE roadmap (e.g., 001, 002, 003, 004).
 - **Atomic Consistency**: Every task mentioned in the `project_spec.md` roadmap must have a corresponding `.md` file in `.crules/tasks/wip/`.

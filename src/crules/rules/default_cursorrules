@@ -172,10 +172,13 @@ When the user types one of these keywords, activate the described behaviour:
   2. Check for modified but unstaged `.crules/` files (modes, tasks) and `project_spec.md`. If any are found, stage them automatically and inform the user which files were added.
   3. **Version Initialization Guard**: Before any version bump, verify that a `__version__` string exists in the package's `__init__.py` and a `version` field exists in `pyproject.toml`. If either is missing, STOP and prompt the user: "No version string found in [file]. Initialize at 0.1.0?" Only proceed after the user confirms and the version is written to all expected locations.
   4. Triangulate the highest current version: check `pyproject.toml`, `src/crules/__init__.py` (`__version__`), and Git tags. The highest value found is your base version.
-  5. Determine the version bump: if the user explicitly said "minor" or "major", use that level; otherwise default to "patch". Follow GIT_POLICY rules (feat -> minor, fix/chore -> patch).
-  6. Apply the SemVer bump to the **highest** version found (never a lower one).
-  7. Force-sync the new version into both `pyproject.toml` and `src/crules/__init__.py`, ensuring all files contain the identical new version.
-  8. Stage both `pyproject.toml` and `src/crules/__init__.py`, then execute a Conventional Commit including the version bump.
+  5. **Detect Change Type**: Inspect `git diff --cached --diff-filter=A --name-only` and `git diff --cached` for newly added files, classes, or function definitions. If new files or functions are present, the commit type is `feat` and the bump MUST be at least `minor`, regardless of what the user requested.
+  6. Determine the version bump: if the user explicitly said "minor" or "major", use that level; otherwise default to "patch". Follow GIT_POLICY rules (feat -> minor, fix/chore -> patch). The Detect Change Type rule above overrides: if new files/functions are staged, the floor is `minor`.
+  7. Apply the SemVer bump to the **highest** version found (never a lower one).
+  8. **Metadata Sync**: Write the new version into both `pyproject.toml` and `src/<pkg>/__init__.py` **before** running `git add`. Both files must contain the identical new version string.
+  9. Stage `pyproject.toml`, `src/<pkg>/__init__.py`, and all other relevant files.
+  10. **Version Validation**: Before the final `git commit`, run `python3 -m <pkg> --version` (or the package's equivalent CLI version command) and capture the output.
+  11. **Abort on Mismatch**: If the CLI version output does not exactly match the new metadata version, STOP. Do NOT commit. Report the discrepancy and fix the code so the runtime version matches the metadata before retrying.
 - **branch**: Act as Manager. Read `.crules/modes/GIT_POLICY.md`. Create a new branch following the GIT_POLICY naming convention (`feat/`, `fix/`, `docs/`, `chore/`, `refactor/`) based on the current task description.
 
 ## Universal Agent System

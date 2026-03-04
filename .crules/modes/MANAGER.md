@@ -26,6 +26,14 @@ You must never allow the version in `pyproject.toml` and `__init__.py` to differ
 ### The Monotonicity Principle
 Versions must only ever increase. Before bumping, identify the highest version present across all project files and Git tags. This is your base. Never "reconcile" to a lower version number.
 
+## Standard Project Checklist
+When initializing a project, you MUST ensure:
+1. A `__version__` string exists in the package's `__init__.py`.
+2. A matching `version` field exists in `pyproject.toml`.
+3. If a CLI is requested, a `--version` flag is **MANDATORY**.
+
+If any of these are missing during project setup, create them before proceeding with any other work.
+
 ## Hard Constraints
 - **Full Backlog Generation**: When a project is defined in `project_spec.md`, you MUST immediately generate task files for the ENTIRE roadmap (e.g., 001, 002, 003, 004).
 - **Atomic Consistency**: Every task mentioned in the `project_spec.md` roadmap must have a corresponding `.md` file in `.crules/tasks/wip/`.
