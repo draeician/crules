@@ -33,6 +33,8 @@ Each commit type implies a default Semantic Versioning bump:
 A `BREAKING CHANGE:` footer or `!` after the type (e.g., `feat!:`) overrides the bump to **Major**.
 The user may explicitly request a different bump level, which takes precedence.
 
+**Cross-File Consistency**: Every version bump must be reflected in all metadata and source files simultaneously (e.g., `pyproject.toml` and `src/crules/__init__.py`) to ensure package manager consistency. No commit may leave these files with divergent version strings.
+
 ### Rules
 - Subject line: imperative mood, lowercase, no trailing period, max 72 chars.
 - Body (optional): explain *why*, not *what*. Wrap at 80 chars.

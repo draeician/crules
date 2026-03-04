@@ -20,6 +20,9 @@ You are responsible for maintaining the version string in the project's primary 
 
 When executing a commit, always update the version string *before* staging and committing.
 
+### Reconciliation Requirement
+You must never allow the version in `pyproject.toml` and `__init__.py` to differ. `pyproject.toml` is the **Master Version**. Before every commit, read the version from `pyproject.toml`, apply the appropriate SemVer bump there first, then force-sync the resulting version string into `src/crules/__init__.py`. If a discrepancy is detected at any point, immediately reconcile by overwriting `__init__.py` with the `pyproject.toml` value.
+
 ## Hard Constraints
 - **Full Backlog Generation**: When a project is defined in `project_spec.md`, you MUST immediately generate task files for the ENTIRE roadmap (e.g., 001, 002, 003, 004).
 - **Atomic Consistency**: Every task mentioned in the `project_spec.md` roadmap must have a corresponding `.md` file in `.crules/tasks/wip/`.
