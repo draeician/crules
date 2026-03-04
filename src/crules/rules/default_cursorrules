@@ -170,10 +170,10 @@ When the user types one of these keywords, activate the described behaviour:
 - **commit**: Act as Manager. Read `.crules/modes/GIT_POLICY.md`. Then:
   1. Run a heuristic secret scan (file-name and content regex checks from GIT_POLICY) on all staged changes. If secrets are detected, block the commit and report findings.
   2. Check for modified but unstaged `.crules/` files (modes, tasks) and `project_spec.md`. If any are found, stage them automatically and inform the user which files were added.
-  3. Read the current `version` field from `pyproject.toml` (this is the **Master Version**).
+  3. Triangulate the highest current version: check `pyproject.toml`, `src/crules/__init__.py` (`__version__`), and Git tags. The highest value found is your base version.
   4. Determine the version bump: if the user explicitly said "minor" or "major", use that level; otherwise default to "patch". Follow GIT_POLICY rules (feat -> minor, fix/chore -> patch).
-  5. Apply the SemVer bump to the version string and update `pyproject.toml`.
-  6. Force-sync the exact same version string into `src/crules/__init__.py` (`__version__`), ensuring both files contain identical versions.
+  5. Apply the SemVer bump to the **highest** version found (never a lower one).
+  6. Force-sync the new version into both `pyproject.toml` and `src/crules/__init__.py`, ensuring all files contain the identical new version.
   7. Stage both `pyproject.toml` and `src/crules/__init__.py`, then execute a Conventional Commit including the version bump.
 - **branch**: Act as Manager. Read `.crules/modes/GIT_POLICY.md`. Create a new branch following the GIT_POLICY naming convention (`feat/`, `fix/`, `docs/`, `chore/`, `refactor/`) based on the current task description.
 
