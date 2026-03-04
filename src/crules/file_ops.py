@@ -4,6 +4,7 @@ from typing import List, Dict, Optional
 import logging
 import shutil
 import yaml
+import click
 from importlib import resources
 from .ai_managers import CursorManager, ClaudeManager, CopilotManager
 
@@ -277,6 +278,15 @@ def bootstrap_swarm(config: dict) -> bool:
     """
     try:
         crules_dir = Path(".crules")
+
+        if crules_dir.exists():
+            if not click.confirm(
+                "\u26a0\ufe0f  This repository is already bootstrapped. "
+                "Proceeding will refresh personas and rules. Continue?"
+            ):
+                logger.info("Bootstrap aborted by user")
+                return True
+
         for sub in ("tasks/wip", "tasks/review", "tasks/done", "modes"):
             (crules_dir / sub).mkdir(parents=True, exist_ok=True)
         logger.info("Created .crules directory structure")
