@@ -4,7 +4,8 @@ import logging
 import click
 from . import __version__
 from . import config, file_ops
-from .cursor_ops import CursorDirectoryManager
+
+VALID_TARGETS = ("cursor", "claude", "copilot")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -25,10 +26,17 @@ logger = logging.getLogger(__name__)
               help='Create or update necessary directories and rule files')
 @click.option('--legacy', is_flag=True,
               help='Use legacy .cursorrules file instead of .cursor/rules directory')
-def main(languages: tuple[str, ...], force: bool, verbose: bool, show_list: bool, setup_dirs: bool, legacy: bool) -> None:
-    """Generate cursor rules files.
+@click.option('-t', '--target', 'targets', multiple=True,
+              type=click.Choice(VALID_TARGETS, case_sensitive=False),
+              help='AI tool targets to generate rules for (may be repeated). '
+                   'Defaults to all enabled targets in config.')
+def main(languages: tuple[str, ...], force: bool, verbose: bool,
+         show_list: bool, setup_dirs: bool, legacy: bool,
+         targets: tuple[str, ...]) -> None:
+    """Generate AI assistant rules files.
     
-    By default, creates individual rule files in .cursor/rules directory.
+    By default, creates rule files for all enabled assistants (Cursor, Claude, Copilot).
+    Use --target to limit generation to specific tools.
     Use --legacy to generate a single .cursorrules file instead.
     
     Use --setup to initialize or update the rules directory structure.
@@ -74,7 +82,6 @@ def main(languages: tuple[str, ...], force: bool, verbose: bool, show_list: bool
             raise click.ClickException("Required files not found")
             
         if legacy:
-            # Legacy mode: Create single .cursorrules file
             if not file_ops.backup_existing_rules(force):
                 return
                 
@@ -89,12 +96,19 @@ def main(languages: tuple[str, ...], force: bool, verbose: bool, show_list: bool
             output_file.write_text(content)
             logger.info(f"Successfully created {output_file}")
         else:
-            # New mode: Create files in .cursor/rules directory
-            cursor_manager = CursorDirectoryManager(cfg)
-            if file_ops.write_rules_to_cursor_dir(cursor_manager, global_rules, lang_rules_dir, languages, force):
-                logger.info("Successfully created rules in .cursor/rules directory")
+            if targets:
+                cfg["enable_cursor"] = "cursor" in targets
+                cfg["enable_claude"] = "claude" in targets
+                cfg["enable_copilot"] = "copilot" in targets
             else:
-                raise click.ClickException("Failed to create rules in .cursor/rules directory")
+                cfg.setdefault("enable_cursor", True)
+                cfg.setdefault("enable_claude", True)
+                cfg.setdefault("enable_copilot", True)
+
+            if file_ops.write_rules_to_ai_dirs(cfg, global_rules, lang_rules_dir, list(languages), force):
+                logger.info("Successfully created rules for AI assistants")
+            else:
+                raise click.ClickException("Failed to create AI assistant rules")
         
     except Exception as e:
         raise click.ClickException(str(e)) 

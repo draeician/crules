@@ -1,3 +1,4 @@
+*.orig
 .specstory/
 .cursor
 research/

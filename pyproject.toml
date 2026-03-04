@@ -1,11 +1,11 @@
 [project]
 name = "crules"
-version = "0.2.1"
-description = "Cursor Rules Generator Script"
+version = "0.3.0"
+description = "Omni-Assistant Context Compiler — generate native rules for Cursor, Claude Code, and GitHub Copilot from a single source"
 readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "MIT"}
-keywords = ["cursor", "ai", "rules", "development"]
+keywords = ["cursor", "claude", "copilot", "ai", "rules", "development"]
 authors = [
     {name = "draeician", email = "draeician@gmail.com"},
 ]

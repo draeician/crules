@@ -5,7 +5,7 @@ import logging
 import shutil
 import yaml
 from importlib import resources
-from .cursor_ops import CursorDirectoryManager
+from .ai_managers import CursorManager, ClaudeManager, CopilotManager
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +13,7 @@ def copy_predefined_rules(lang_rules_dir: Path, verbose: bool = False, force: bo
     """Copy predefined language rules to the lang_rules directory."""
     try:
         # Get predefined rules using importlib.resources
-        with resources.files('crules.rules') as rules_path:
+        with resources.as_file(resources.files('crules.rules')) as rules_path:
             if not rules_path.is_dir():
                 logger.warning("No predefined rules found in package")
                 return
@@ -55,7 +55,7 @@ def setup_directory_structure(verbose: bool = False, force: bool = False) -> boo
         force: Whether to overwrite existing files
     """
     try:
-        base_dir = Path("~/.config/Cursor/cursor-rules").expanduser()
+        base_dir = Path("~/.config/crules").expanduser()
         lang_rules_dir = base_dir / "lang_rules"
         config_file = base_dir / "config.yaml"
         global_rules = base_dir / "cursorrules"
@@ -227,63 +227,60 @@ def update_gitignore() -> None:
             
             logger.debug("Added Cursor entries to .gitignore")
 
-def write_rules_to_cursor_dir(
-    cursor_manager: CursorDirectoryManager,
+def write_rules_to_ai_dirs(
+    config: dict,
     global_rules: Path,
     lang_rules_dir: Path,
-    languages: List[str],
+    languages: list[str],
     force: bool = False
 ) -> bool:
-    """Write rules to the .cursor/rules directory.
-    
+    """Write rules to all enabled AI assistant directories.
+
+    Instantiates managers for each enabled assistant (Cursor, Claude, Copilot)
+    based on config flags, then writes global and per-language rule files
+    through each manager.
+
     Args:
-        cursor_manager: Instance of CursorDirectoryManager
+        config: Configuration dict with enable_cursor/enable_claude/enable_copilot flags
         global_rules: Path to global rules file
         lang_rules_dir: Path to language rules directory
         languages: List of language identifiers
         force: Whether to force overwrite existing files
-        
+
     Returns:
-        bool: True if successful, False otherwise
+        bool: True if all writes succeeded, False otherwise
     """
     try:
-        # Ensure .cursor structure exists
-        cursor_manager.ensure_cursor_structure()
-            
-        # Write global rules
-        try:
-            with global_rules.open() as f:
-                content = f.read()
-                metadata = {
-                    "description": "Global cursor rules",
-                    "globs": ["*"]
-                }
-                if not cursor_manager.create_rule_file("global", content, metadata):
-                    return False
-        except Exception as e:
-            logger.error(f"Failed to write global rules: {e}")
+        manager_map = {
+            "enable_cursor": CursorManager,
+            "enable_claude": ClaudeManager,
+            "enable_copilot": CopilotManager,
+        }
+        active_managers = [
+            cls(config) for key, cls in manager_map.items() if config.get(key)
+        ]
+
+        if not active_managers:
+            logger.warning("No AI assistants enabled in config")
             return False
-            
-        # Write language rules
-        for lang in languages:
-            try:
-                lang_file = lang_rules_dir / f"cursor.{lang}"
-                with lang_file.open() as f:
-                    content = f.read()
-                    metadata = {
-                        "description": f"Rules for {lang} development",
-                        "globs": [f"*.{lang}"]  # This is a simple glob pattern
-                    }
-                    if not cursor_manager.create_rule_file(lang, content, metadata):
-                        return False
-            except Exception as e:
-                logger.error(f"Failed to write {lang} rules: {e}")
+
+        content = global_rules.read_text()
+
+        for manager in active_managers:
+            manager.ensure_structure()
+            if not manager.create_rule_file("global", content, ["*"]):
                 return False
-                
-        # Update .gitignore
-        cursor_manager.update_gitignore()
+            manager.update_gitignore()
+
+        for lang in languages:
+            lang_file = lang_rules_dir / f"cursor.{lang}"
+            lang_content = lang_file.read_text()
+            for manager in active_managers:
+                if not manager.create_rule_file(lang, lang_content, [f"*.{lang}"]):
+                    return False
+
         return True
-        
+
     except Exception as e:
-        logger.error(f"Failed to write rules to .cursor directory: {e}")
+        logger.error(f"Failed to write rules to AI directories: {e}")
         return False

@@ -7,8 +7,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 DEFAULT_CONFIG = {
-    "global_rules_path": "~/.config/Cursor/cursor-rules/cursorrules",
-    "language_rules_dir": "~/.config/Cursor/cursor-rules/lang_rules",
+    "global_rules_path": "~/.config/crules/cursorrules",
+    "language_rules_dir": "~/.config/crules/lang_rules",
     "project_rules_dir": ".cursor/rules",
     "delimiter": "\n# --- Delimiter ---\n",
     "use_legacy": False,
@@ -21,7 +21,7 @@ def load_config() -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: Configuration dictionary with all settings
     """
-    config_path = Path("~/.config/Cursor/cursor-rules/config.yaml").expanduser()
+    config_path = Path("~/.config/crules/config.yaml").expanduser()
     
     try:
         if config_path.exists():

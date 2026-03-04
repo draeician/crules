@@ -1,15 +1,23 @@
-# Crules - Cursor Rules Generator
+# Crules - Omni-Assistant Rules Generator
 
-A Python utility for generating `.cursorrules` files by combining global and language-specific cursor rules.
+A Python utility that acts as a **Context Compiler**, turning a single set of universal rules into the native formats required by multiple AI coding assistants:
+
+| Assistant | Output Directory | File Extension | Metadata Key |
+|-----------|-----------------|----------------|--------------|
+| Cursor | `.cursor/rules/` | `.mdc` | `globs` |
+| Claude Code | `.claude/rules/` | `.md` | `paths` |
+| GitHub Copilot | `.github/instructions/` | `.instructions.md` | `applyTo` |
 
 ## Features
 
-- Combines global cursor rules with language-specific rules
-- Supports multiple programming languages
-- Automatic backup of existing rules
-- List available language configurations
-- Configurable via YAML configuration
-- Verbose logging support
+- Compiles one source of truth into native rule files for Cursor, Claude Code, and GitHub Copilot
+- Automatically translates glob patterns into each tool's metadata dialect
+- Injects a Universal Preamble into every generated file for consistent AI behavior
+- Per-tool toggles — enable or disable any assistant via config or CLI flags
+- `--target` flag to generate rules for specific tools in a single invocation
+- Legacy mode (`--legacy`) for backward-compatible `.cursorrules` output
+- Supports multiple programming languages with per-language rule files
+- Configurable via YAML
 
 ## Installation
 
@@ -19,42 +27,39 @@ git clone https://github.com/draeician/crules.git
 cd crules
 ```
 
-2. Install using pipx: (much better than doing pip install .)
+2. Install using pipx (recommended):
 ```bash
 pipx install .
 ```
-NOTE:  uninstall with pipx uninstall crules or 
 
-> **Note:** If you encounter an "externally-managed-environment" error, you have two options:
-> 1. **Recommended:** Create and use a virtual environment:
->    ```bash
->    python3 -m venv .venv
->    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
->    pip install .
->    ```us
-> 2. **Alternative:** Use the `--break-system-packages` flag (not recommended):
->    ```bash
->    pip install . --break-system-packages
->    ```
->    This is not recommended as it may interfere with system Python packages.
+> **Note:** If you encounter an "externally-managed-environment" error, create a virtual environment:
+> ```bash
+> python3 -m venv .venv
+> source .venv/bin/activate
+> pip install .
+> ```
 
 ## Configuration
 
-The default configuration file is located at `~/.config/Cursor/cursor-rules/config.yaml`:
+The default configuration file is located at `~/.config/crules/config.yaml`:
 
 ```yaml
-global_rules_path: "~/.config/Cursor/cursor-rules/cursorrules"
-language_rules_dir: "~/.config/Cursor/cursor-rules/lang_rules"
+global_rules_path: "~/.config/crules/cursorrules"
+language_rules_dir: "~/.config/crules/lang_rules"
+enable_cursor: true
+enable_claude: true
+enable_copilot: true
 delimiter: "\n# --- Delimiter ---\n"
-backup_existing: true
 ```
 
-### Directory Structure
+Set any `enable_*` toggle to `false` to skip that assistant during generation.
+
+### Source Directory Structure
 
 ```
-~/.config/Cursor/cursor-rules/
+~/.config/crules/
 ├── config.yaml
-├── cursorrules
+├── cursorrules              # global rules (applied to all files)
 └── lang_rules/
     ├── cursor.python
     ├── cursor.javascript
@@ -63,92 +68,82 @@ backup_existing: true
 
 ## Usage
 
-### Basic Usage
-
-Generate a `.cursorrules` file for one or more languages:
+### First-Time Setup
 
 ```bash
-# Single language
-python -m crules python
+crules --setup
+```
 
-# Multiple languages
-python -m crules python javascript rust
+### Generate Rules for All Enabled Assistants
+
+```bash
+crules python javascript
+```
+
+### Target Specific Assistants
+
+```bash
+# Only Cursor and Claude Code
+crules -t cursor -t claude python
+
+# Only GitHub Copilot
+crules --target copilot python rust
 ```
 
 ### List Available Languages
 
-View all available language configurations:
+```bash
+crules --list
+```
+
+### Legacy Mode
+
+Generate a single `.cursorrules` file (pre-0.2 behavior):
 
 ```bash
-python -m crules --list
-```
-
-Example output:
-```
-Available language rules:
-- python (cursor.python)
-- javascript (cursor.javascript)
-- rust (cursor.rust)
+crules --legacy python javascript
 ```
 
 ### Additional Options
 
 ```bash
-# Force overwrite existing .cursorrules file
-python -m crules -f python
-
-# Enable verbose output
-python -m crules -v python
-
-# Show help
-python -m crules --help
+crules -f python        # force overwrite existing rule files
+crules -v python        # enable verbose logging
+crules --help           # show all options
 ```
 
-## Command-line Options
+## Command-Line Options
 
-- `languages`: One or more language identifiers
-- `-f, --force`: Force overwrite of existing files
-- `-v, --verbose`: Enable verbose output
-- `-l, --list`: List available language rules
-- `-s, --setup`: Create necessary directories and files
-- `-h, --help`: Show help message
+| Option | Description |
+|--------|-------------|
+| `languages` | One or more language identifiers |
+| `-t, --target` | AI tool to generate for (repeatable: `cursor`, `claude`, `copilot`) |
+| `-f, --force` | Force overwrite of existing files |
+| `-v, --verbose` | Enable verbose output |
+| `-l, --list` | List available language rules |
+| `-s, --setup` | Create necessary directories and files |
+| `--legacy` | Generate a single `.cursorrules` file |
+| `--version` | Show version |
+| `--help` | Show help message |
 
-### First Time Setup
+## Generated Output
 
-Before using crules, run the setup command to create necessary directories and files:
+Running `crules python` with all assistants enabled produces:
 
-```bash
-python -m crules --setup
+```
+project/
+├── .cursor/rules/
+│   ├── global.mdc
+│   └── python.mdc
+├── .claude/rules/
+│   ├── global.md
+│   └── python.md
+└── .github/instructions/
+    ├── global.instructions.md
+    └── python.instructions.md
 ```
 
-This will create:
-- Configuration directory: `~/.config/Cursor/cursor-rules/`
-- Language rules directory: `~/.config/Cursor/cursor-rules/lang_rules/`
-- Global rules file: `~/.config/Cursor/cursor-rules/cursorrules`
-- Default config file: `~/.config/Cursor/cursor-rules/config.yaml`
-
-## File Structure
-
-The generated `.cursorrules` file combines:
-1. Global rules from the `cursorrules` file
-2. Language-specific rules from `cursor.<language>` files
-3. Uses a configurable delimiter between sections
-
-Example structure:
-```
-# Global Rules
-<global rules content>
-
-# --- Delimiter ---
-
-# Rules for python
-<python rules content>
-
-# --- Delimiter ---
-
-# Rules for javascript
-<javascript rules content>
-```
+Each file contains YAML frontmatter with tool-native metadata and the Universal Preamble, followed by the rule content.
 
 ## Development
 
@@ -168,23 +163,30 @@ crules/
 │       ├── __main__.py
 │       ├── cli.py
 │       ├── config.py
+│       ├── ai_managers.py
+│       ├── cursor_ops.py
 │       └── file_ops.py
+├── tests/
+│   └── test_ai_managers.py
 ├── pyproject.toml
+├── CHANGELOG.md
 └── README.md
 ```
 
 ### Setting Up Development Environment
 
-1. Clone the repository
-2. Create a virtual environment:
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+git clone https://github.com/draeician/crules.git
+cd crules
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
 ```
 
-3. Install development dependencies:
+### Running Tests
+
 ```bash
-pip install -e ".[dev]"
+pytest tests/ -v
 ```
 
 ## Contributing
@@ -200,4 +202,4 @@ pip install -e ".[dev]"
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 [![PyPI version](https://badge.fury.io/py/crules.svg)](https://badge.fury.io/py/crules)
-[![Python versions](https://img.shields.io/pypi/pyversions/crules.svg)](https://pypi.org/project/crules/) 
+[![Python versions](https://img.shields.io/pypi/pyversions/crules.svg)](https://pypi.org/project/crules/)
