@@ -1,6 +1,6 @@
 """File operations for crules."""
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 import logging
 import shutil
 import yaml
@@ -262,6 +262,36 @@ def update_gitignore() -> None:
             
             logger.debug("Added Cursor entries to .gitignore")
 
+
+def refresh_default_rules(verbose: bool = False) -> bool:
+    """Refresh the global default rules file from the packaged defaults.
+
+    Copies ``default_cursorrules`` from the installed ``crules.rules`` package
+    into the user's ``~/.config/crules/cursorrules`` file, creating the
+    configuration directory if needed.
+
+    Args:
+        verbose: Whether to emit verbose log messages.
+
+    Returns:
+        True if the refresh succeeded, False otherwise.
+    """
+    try:
+        base_dir = Path("~/.config/crules").expanduser()
+        base_dir.mkdir(parents=True, exist_ok=True)
+        global_rules = base_dir / "cursorrules"
+
+        with resources.files("crules.rules").joinpath("default_cursorrules").open("r") as src:
+            content = src.read()
+            global_rules.write_text(content)
+
+        if verbose:
+            logger.info(f"Refreshed default rules at {global_rules}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to refresh default rules: {e}")
+        return False
+
 def bootstrap_swarm(config: dict) -> bool:
     """Initialize the generic Swarm infrastructure in the current repo.
 
@@ -404,6 +434,133 @@ def sync_modes(config: dict) -> bool:
     except Exception as e:
         logger.error(f"Sync failed: {e}")
         return False
+
+
+def report_status() -> Dict[str, Any]:
+    """Report the status of the global crules config and current project.
+
+    Checks for the presence of the global configuration directory, config file,
+    global rules, language rules, and workflow templates under
+    ``~/.config/crules``. If the current directory contains a ``.crules``
+    folder, it also inspects local modes and ``project_spec.md``.
+
+    Returns:
+        A dictionary with a boolean ``all_ok`` flag and a ``checks`` list of
+        individual check results, each containing:
+        - ``scope``: \"global\" or \"project\"
+        - ``name``: Human-readable description of the check
+        - ``path``: Filesystem path involved in the check
+        - ``ok``: True if the check passed, False otherwise
+        - ``remediation``: Suggested command string, or None
+    """
+    checks: list[Dict[str, Any]] = []
+
+    base_dir = Path("~/.config/crules").expanduser()
+    config_file = base_dir / "config.yaml"
+    global_rules = base_dir / "cursorrules"
+    lang_rules_dir = base_dir / "lang_rules"
+    workflows_dir = base_dir / "workflows"
+
+    def add_check(scope: str, name: str, path: Path, ok: bool, remediation: Optional[str]) -> None:
+        checks.append(
+            {
+                "scope": scope,
+                "name": name,
+                "path": str(path),
+                "ok": ok,
+                "remediation": remediation,
+            }
+        )
+
+    # Global config checks
+    has_base = base_dir.exists()
+    add_check("global", "Config directory", base_dir, has_base, "crules --setup" if not has_base else None)
+
+    has_config_file = config_file.exists()
+    add_check("global", "Config file", config_file, has_config_file, "crules --setup" if not has_config_file else None)
+
+    has_global_rules = global_rules.exists()
+    add_check(
+        "global",
+        "Global rules (cursorrules)",
+        global_rules,
+        has_global_rules,
+        "crules --refresh-defaults" if not has_global_rules else None,
+    )
+
+    has_lang_dir = lang_rules_dir.exists()
+    add_check(
+        "global",
+        "Language rules directory",
+        lang_rules_dir,
+        has_lang_dir,
+        "crules --setup" if not has_lang_dir else None,
+    )
+
+    has_lang_files = has_lang_dir and any(lang_rules_dir.glob("cursor.*"))
+    add_check(
+        "global",
+        "Language rule files (cursor.*)",
+        lang_rules_dir,
+        has_lang_files,
+        "crules --setup" if not has_lang_files else None,
+    )
+
+    has_workflows_dir = workflows_dir.exists()
+    add_check(
+        "global",
+        "Workflows directory",
+        workflows_dir,
+        has_workflows_dir,
+        "crules --setup" if not has_workflows_dir else None,
+    )
+
+    core_names = ("MANAGER.md", "CODER.md", "GIT_POLICY.md")
+    for name in core_names:
+        wf_path = workflows_dir / name
+        ok = wf_path.exists()
+        add_check(
+            "global",
+            f"Workflow template {name}",
+            wf_path,
+            ok,
+            "crules --setup" if not ok else None,
+        )
+
+    # Project-level checks (only if this looks like a crules-enabled repo)
+    project_crules = Path(".crules")
+    if project_crules.exists():
+        modes_dir = project_crules / "modes"
+        has_modes_dir = modes_dir.exists()
+        add_check(
+            "project",
+            "Local modes directory (.crules/modes)",
+            modes_dir,
+            has_modes_dir,
+            "crules --sync" if not has_modes_dir else None,
+        )
+
+        has_mode_files = has_modes_dir and any(modes_dir.glob("*.md"))
+        add_check(
+            "project",
+            "Local mode files (.crules/modes/*.md)",
+            modes_dir,
+            has_mode_files,
+            "crules --sync" if not has_mode_files else None,
+        )
+
+        project_spec = Path("project_spec.md")
+        has_project_spec = project_spec.exists()
+        add_check(
+            "project",
+            "project_spec.md",
+            project_spec,
+            has_project_spec,
+            "crules --bootstrap" if not has_project_spec else None,
+        )
+
+    all_ok = all(entry["ok"] for entry in checks)
+    return {"all_ok": all_ok, "checks": checks}
 
 
 def write_rules_to_ai_dirs(

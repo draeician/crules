@@ -158,6 +158,8 @@ The following `crules` CLI commands are available for managing this project's AI
 - `crules --setup` (`-s`): Initialize or update the global `~/.config/crules/` directory with default rules, language templates, and workflow modes.
 - `crules --bootstrap` (`-b`): Deploy the Swarm infrastructure (`.crules/` directory, task pipeline, personas, and `project_spec.md`) into the current repository.
 - `crules --sync` (`-S`): Refresh local `.crules/modes/` from the global workflow templates and re-deploy rules to all IDE rule folders.
+- `crules --refresh-defaults` (`-R`): Overwrite the global `~/.config/crules/cursorrules` file with the packaged `default_cursorrules`, without touching workflows or language rule templates.
+- `crules --status`: Print a diagnostic report of the global crules configuration and the current project, including missing pieces and suggested commands to fix them.
 - `crules --list` (`-l`): List all available language rule files.
 - `crules <lang> [<lang> ...]`: Compile language-specific rules for all enabled AI assistants (e.g., `crules python bash`).
 - `crules --target <tool> <lang>` (`-t`): Limit rule generation to specific assistants (e.g., `crules -t cursor -t claude python`).

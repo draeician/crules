@@ -24,6 +24,10 @@ logger = logging.getLogger(__name__)
               help='List available language rules in the rules directory')
 @click.option('-s', '--setup', 'setup_dirs', is_flag=True, 
               help='Create or update necessary directories and rule files')
+@click.option('-R', '--refresh-defaults', 'refresh_defaults', is_flag=True,
+              help='Refresh global default rules from the installed package.')
+@click.option('--status', 'show_status', is_flag=True,
+              help='Show crules configuration and project status.')
 @click.option('--legacy', is_flag=True,
               help='Use legacy .cursorrules file instead of .cursor/rules directory')
 @click.option('-t', '--target', 'targets', multiple=True,
@@ -34,18 +38,31 @@ logger = logging.getLogger(__name__)
               help='Initialize the generic Swarm infrastructure in a repo.')
 @click.option('-S', '--sync', 'sync_modes_flag', is_flag=True,
               help='Sync workflow modes from global config into the local .crules/modes/ directory.')
-def main(languages: tuple[str, ...], force: bool, verbose: bool,
-         show_list: bool, setup_dirs: bool, legacy: bool,
-         targets: tuple[str, ...], bootstrap: bool, sync_modes_flag: bool) -> None:
+def main(
+    languages: tuple[str, ...],
+    force: bool,
+    verbose: bool,
+    show_list: bool,
+    setup_dirs: bool,
+    refresh_defaults: bool,
+    show_status: bool,
+    legacy: bool,
+    targets: tuple[str, ...],
+    bootstrap: bool,
+    sync_modes_flag: bool,
+) -> None:
     """Generate AI assistant rules files.
     
     By default, creates rule files for all enabled assistants (Cursor, Claude, Copilot).
     Use --target to limit generation to specific tools.
     Use --legacy to generate a single .cursorrules file instead.
-    
+
     Use --setup to initialize or update the rules directory structure.
     Use --bootstrap to initialize the generic Swarm infrastructure in a repo.
     Use --sync to refresh local .crules/modes/ from global workflow templates.
+    Use --refresh-defaults to copy the packaged default_cursorrules into the
+    global cursorrules file without touching workflows or language rules.
+    Use --status to print a diagnostic report of global and project setup.
     Use --force with --setup to update existing rule files.
     Use --list to see available language rules.
     Use --verbose for detailed operation logging.
@@ -63,8 +80,40 @@ def main(languages: tuple[str, ...], force: bool, verbose: bool,
                 raise click.ClickException("Setup failed")
             return
 
+        # Handle --status option
+        if show_status:
+            status = file_ops.report_status()
+            all_ok = status.get("all_ok", False)
+            checks = status.get("checks", [])
+
+            print("\ncrules status\n")
+            for scope in ("global", "project"):
+                scoped = [c for c in checks if c["scope"] == scope]
+                if not scoped:
+                    continue
+                header = "Global config (~/.config/crules)" if scope == "global" else "Project (.crules)"
+                print(f"{header}:")
+                for entry in scoped:
+                    prefix = "[OK]" if entry["ok"] else "[MISSING]"
+                    print(f"  {prefix} {entry['name']} -> {entry['path']}")
+                    remediation = entry.get("remediation")
+                    if remediation and not entry["ok"]:
+                        print(f"    -> Run: {remediation}")
+                print()
+
+            if not all_ok:
+                raise click.ClickException("One or more crules checks failed")
+            return
+
         # Load configuration
         cfg = config.load_config()
+
+        # Handle standalone --refresh-defaults
+        if refresh_defaults and not (bootstrap or sync_modes_flag or show_list or languages):
+            if not file_ops.refresh_default_rules(verbose):
+                raise click.ClickException("Failed to refresh default rules")
+            logger.info("Default rules refreshed")
+            return
 
         # Handle --bootstrap option
         if bootstrap:
@@ -77,6 +126,10 @@ def main(languages: tuple[str, ...], force: bool, verbose: bool,
 
         # Handle --sync option
         if sync_modes_flag:
+            if refresh_defaults:
+                logger.info("Refreshing default rules before sync...")
+                if not file_ops.refresh_default_rules(verbose):
+                    raise click.ClickException("Failed to refresh default rules before sync")
             logger.info("Syncing workflow modes...")
             if file_ops.sync_modes(cfg):
                 logger.info("Sync complete!")

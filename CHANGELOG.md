@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `enable_cursor`, `enable_claude`, `enable_copilot` boolean toggles in `config.yaml`
 - Universal Preamble injected into every generated rule file
 - `write_rules_to_ai_dirs()` in `file_ops.py` replaces the old cursor-only writer
+ - `--refresh-defaults` (`-R`) CLI flag to overwrite the global `cursorrules` file from the packaged `default_cursorrules`
+ - `--status` CLI flag to print a diagnostic report of global and project setup, including remediation commands
 
 ### Changed
 - `file_ops.py` now imports from `ai_managers` instead of `cursor_ops`
