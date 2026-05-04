@@ -3,7 +3,15 @@ import pytest
 from pathlib import Path
 from importlib import resources
 import yaml
-from crules.ai_managers import CursorManager, ClaudeManager, CopilotManager
+from crules.ai_managers import (
+    AiderManager,
+    ClaudeManager,
+    ClineManager,
+    CopilotManager,
+    CursorManager,
+    RooManager,
+    WindsurfManager,
+)
 from crules import file_ops
 
 
@@ -14,6 +22,10 @@ def test_config():
         "enable_cursor": True,
         "enable_claude": True,
         "enable_copilot": True,
+        "enable_cline": True,
+        "enable_roo": True,
+        "enable_windsurf": True,
+        "enable_aider": True,
     }
 
 
@@ -58,6 +70,10 @@ def bootstrap_env(tmp_path, monkeypatch):
         "enable_cursor": True,
         "enable_claude": True,
         "enable_copilot": True,
+        "enable_cline": True,
+        "enable_roo": True,
+        "enable_windsurf": True,
+        "enable_aider": True,
     }
     return tmp_path, cfg
 
@@ -212,6 +228,213 @@ class TestCopilotManager:
         assert ".github/instructions/*.instructions.md" in content
 
 
+# --------------- ClineManager ---------------
+
+class TestClineManager:
+    def test_ensure_structure(self, test_config, chdir_tmp):
+        manager = ClineManager(test_config)
+        manager.ensure_structure()
+
+        assert (chdir_tmp / ".clinerules").is_dir()
+
+    def test_create_rule_file_extension(self, test_config, chdir_tmp):
+        manager = ClineManager(test_config)
+        manager.ensure_structure()
+
+        assert manager.create_rule_file("global", "content", ["*"])
+        rule_file = chdir_tmp / ".clinerules" / "global.md"
+        assert rule_file.exists()
+
+    def test_metadata_uses_globs_key(self, test_config, chdir_tmp):
+        manager = ClineManager(test_config)
+        manager.ensure_structure()
+        manager.create_rule_file("python", "# py rules", ["*.py"])
+
+        text = (chdir_tmp / ".clinerules" / "python.md").read_text()
+        meta = _parse_frontmatter(text)
+        assert "globs" in meta
+        assert meta["globs"] == ["*.py"]
+        assert "paths" not in meta
+        assert "applyTo" not in meta
+
+    def test_update_gitignore(self, test_config, chdir_tmp):
+        manager = ClineManager(test_config)
+        manager.update_gitignore()
+
+        content = (chdir_tmp / ".gitignore").read_text()
+        assert ".clinerules/*.md" in content
+
+    def test_update_gitignore_no_duplicate(self, test_config, chdir_tmp):
+        manager = ClineManager(test_config)
+        manager.update_gitignore()
+        manager.update_gitignore()
+
+        content = (chdir_tmp / ".gitignore").read_text()
+        assert content.count(".clinerules/*.md") == 1
+
+
+# --------------- RooManager ---------------
+
+class TestRooManager:
+    def test_ensure_structure(self, test_config, chdir_tmp):
+        manager = RooManager(test_config)
+        manager.ensure_structure()
+
+        assert (chdir_tmp / ".roorules").is_dir()
+
+    def test_create_rule_file_extension(self, test_config, chdir_tmp):
+        manager = RooManager(test_config)
+        manager.ensure_structure()
+
+        assert manager.create_rule_file("global", "content", ["*"])
+        rule_file = chdir_tmp / ".roorules" / "global.md"
+        assert rule_file.exists()
+
+    def test_metadata_uses_globs_key(self, test_config, chdir_tmp):
+        manager = RooManager(test_config)
+        manager.ensure_structure()
+        manager.create_rule_file("python", "# py rules", ["*.py"])
+
+        text = (chdir_tmp / ".roorules" / "python.md").read_text()
+        meta = _parse_frontmatter(text)
+        assert "globs" in meta
+        assert meta["globs"] == ["*.py"]
+        assert "paths" not in meta
+        assert "applyTo" not in meta
+
+    def test_update_gitignore(self, test_config, chdir_tmp):
+        manager = RooManager(test_config)
+        manager.update_gitignore()
+
+        content = (chdir_tmp / ".gitignore").read_text()
+        assert ".roorules/*.md" in content
+
+    def test_update_gitignore_no_duplicate(self, test_config, chdir_tmp):
+        manager = RooManager(test_config)
+        manager.update_gitignore()
+        manager.update_gitignore()
+
+        content = (chdir_tmp / ".gitignore").read_text()
+        assert content.count(".roorules/*.md") == 1
+
+
+# --------------- WindsurfManager ---------------
+
+class TestWindsurfManager:
+    def test_ensure_structure(self, test_config, chdir_tmp):
+        manager = WindsurfManager(test_config)
+        manager.ensure_structure()
+
+        assert (chdir_tmp / ".windsurf" / "rules").is_dir()
+
+    def test_create_rule_file_extension(self, test_config, chdir_tmp):
+        manager = WindsurfManager(test_config)
+        manager.ensure_structure()
+
+        assert manager.create_rule_file("global", "content", ["*"])
+        rule_file = chdir_tmp / ".windsurf" / "rules" / "global.md"
+        assert rule_file.exists()
+
+    def test_metadata_uses_globs_key(self, test_config, chdir_tmp):
+        manager = WindsurfManager(test_config)
+        manager.ensure_structure()
+        manager.create_rule_file("python", "# py rules", ["*.py"])
+
+        text = (chdir_tmp / ".windsurf" / "rules" / "python.md").read_text()
+        meta = _parse_frontmatter(text)
+        assert "globs" in meta
+        assert meta["globs"] == ["*.py"]
+        assert "paths" not in meta
+        assert "applyTo" not in meta
+
+    def test_update_gitignore(self, test_config, chdir_tmp):
+        manager = WindsurfManager(test_config)
+        manager.update_gitignore()
+
+        content = (chdir_tmp / ".gitignore").read_text()
+        assert ".windsurf/rules/*.md" in content
+
+    def test_update_gitignore_no_duplicate(self, test_config, chdir_tmp):
+        manager = WindsurfManager(test_config)
+        manager.update_gitignore()
+        manager.update_gitignore()
+
+        content = (chdir_tmp / ".gitignore").read_text()
+        assert content.count(".windsurf/rules/*.md") == 1
+
+
+# --------------- AiderManager ---------------
+
+class TestAiderManager:
+    def test_ensure_structure(self, test_config, chdir_tmp):
+        manager = AiderManager(test_config)
+        manager.ensure_structure()
+
+        assert (chdir_tmp / ".aider" / "rules").is_dir()
+
+    def test_create_rule_file_extension(self, test_config, chdir_tmp):
+        manager = AiderManager(test_config)
+        manager.ensure_structure()
+
+        assert manager.create_rule_file("global", "content", ["*"])
+        rule_file = chdir_tmp / ".aider" / "rules" / "global.md"
+        assert rule_file.exists()
+
+    def test_metadata_uses_globs_key(self, test_config, chdir_tmp):
+        manager = AiderManager(test_config)
+        manager.ensure_structure()
+        manager.create_rule_file("python", "# py rules", ["*.py"])
+
+        text = (chdir_tmp / ".aider" / "rules" / "python.md").read_text()
+        meta = _parse_frontmatter(text)
+        assert "globs" in meta
+        assert meta["globs"] == ["*.py"]
+        assert "paths" not in meta
+        assert "applyTo" not in meta
+
+    def test_update_gitignore(self, test_config, chdir_tmp):
+        manager = AiderManager(test_config)
+        manager.update_gitignore()
+
+        content = (chdir_tmp / ".gitignore").read_text()
+        assert ".aider/rules/*.md" in content
+
+    def test_update_gitignore_no_duplicate(self, test_config, chdir_tmp):
+        manager = AiderManager(test_config)
+        manager.update_gitignore()
+        manager.update_gitignore()
+
+        content = (chdir_tmp / ".gitignore").read_text()
+        assert content.count(".aider/rules/*.md") == 1
+
+    def test_aider_conf_creates_read_when_missing(self, test_config, chdir_tmp):
+        manager = AiderManager(test_config)
+        manager.ensure_structure()
+        assert manager.create_rule_file("global", "body", ["*"])
+
+        conf = chdir_tmp / ".aider.conf.yml"
+        assert conf.is_file()
+        text = conf.read_text()
+        assert "read:" in text
+        assert "  - .aider/rules/global.md" in text
+
+    def test_aider_conf_appends_preserving_comments(self, test_config, chdir_tmp):
+        conf = chdir_tmp / ".aider.conf.yml"
+        conf.write_text(
+            "# User note — keep me\n"
+            "read:\n"
+            "  - docs/README.md\n"
+        )
+        manager = AiderManager(test_config)
+        manager.ensure_structure()
+        assert manager.create_rule_file("global", "body", ["*"])
+
+        text = conf.read_text()
+        assert "# User note — keep me" in text
+        assert "docs/README.md" in text
+        assert "  - .aider/rules/global.md" in text
+
+
 # --------------- Universal preamble ---------------
 
 class TestUniversalPreamble:
@@ -221,6 +444,10 @@ class TestUniversalPreamble:
         (CursorManager, ".cursor/rules", ".mdc"),
         (ClaudeManager, ".claude/rules", ".md"),
         (CopilotManager, ".github/instructions", ".instructions.md"),
+        (ClineManager, ".clinerules", ".md"),
+        (RooManager, ".roorules", ".md"),
+        (WindsurfManager, ".windsurf/rules", ".md"),
+        (AiderManager, ".aider/rules", ".md"),
     ])
     def test_preamble_present(self, test_config, chdir_tmp, manager_cls, subdir, ext):
         manager = manager_cls(test_config)
@@ -249,7 +476,18 @@ class TestSwarmBootstrap:
         assert spec.exists(), "project_spec.md was not created"
         spec_text = spec.read_text()
         assert "# Project Specification" in spec_text
-        assert "EVALUATION REQUIRED" in spec_text
+        assert "<TO_BE_DEFINED_BY_BOOTSTRAPPER>" in spec_text
+
+        agents = project_dir / "AGENTS.md"
+        assert agents.exists(), "AGENTS.md was not created in repo root"
+        agents_text = agents.read_text()
+        assert "# Agent System Status: [TEMPLATE]" in agents_text
+        assert agents_text.startswith("# Agent System Status: [TEMPLATE]")
+        assert "BOOTSTRAPPER.md" in agents_text
+
+        bootstrapper = project_dir / ".crules" / "modes" / "BOOTSTRAPPER.md"
+        assert bootstrapper.is_file(), "BOOTSTRAPPER.md not deployed to .crules/modes/"
+        assert bootstrapper.stat().st_size > 0
 
     def test_workflow_template_copy(self, bootstrap_env):
         project_dir, cfg = bootstrap_env
@@ -257,7 +495,7 @@ class TestSwarmBootstrap:
         assert file_ops.bootstrap_swarm(cfg) is True
 
         modes_dir = project_dir / ".crules" / "modes"
-        for filename in ("MANAGER.md", "CODER.md"):
+        for filename in ("MANAGER.md", "CODER.md", "BOOTSTRAPPER.md"):
             mode_file = modes_dir / filename
             assert mode_file.exists(), f"{filename} not found in .crules/modes/"
             assert mode_file.stat().st_size > 0, f"{filename} is empty"

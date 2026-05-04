@@ -6,7 +6,15 @@ import shutil
 import yaml
 import click
 from importlib import resources
-from .ai_managers import CursorManager, ClaudeManager, CopilotManager
+from .ai_managers import (
+    AiderManager,
+    ClaudeManager,
+    ClineManager,
+    CopilotManager,
+    CursorManager,
+    RooManager,
+    WindsurfManager,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -323,7 +331,12 @@ def bootstrap_swarm(config: dict) -> bool:
 
         workflows_src = Path("~/.config/crules/workflows").expanduser()
         modes_dest = crules_dir / "modes"
-        for filename in ("MANAGER.md", "CODER.md", "GIT_POLICY.md"):
+        for filename in (
+            "MANAGER.md",
+            "CODER.md",
+            "GIT_POLICY.md",
+            "BOOTSTRAPPER.md",
+        ):
             dest = modes_dest / filename
             if dest.exists():
                 logger.info(f"{filename} already exists in {modes_dest}, skipping")
@@ -346,13 +359,35 @@ def bootstrap_swarm(config: dict) -> bool:
             except Exception:
                 logger.warning(f"Workflow template {filename} not found in config or package resources, skipping")
 
+        agents_md = Path("AGENTS.md")
+        if not agents_md.exists():
+            agents_md.write_text(
+                "# Agent System Status: [TEMPLATE]\n\n"
+                "> **Critical:** Until the first line above reads `[CUSTOMIZED]`, "
+                "you MUST read and follow `.crules/modes/BOOTSTRAPPER.md` on every "
+                "session and complete the Bootstrapper workflow before acting as "
+                "normal Manager or Coder.\n"
+            )
+            logger.info("Created AGENTS.md with [TEMPLATE] bootstrap status")
+
         project_spec = Path("project_spec.md")
         if not project_spec.exists():
             project_spec.write_text(
                 "# Project Specification\n\n"
+                "This file was scaffolded by `crules --bootstrap`. A Bootstrapper "
+                "must replace every `<TO_BE_DEFINED_BY_BOOTSTRAPPER>` placeholder.\n\n"
+                "## Tech stack\n"
+                "- **Primary language(s)**: <TO_BE_DEFINED_BY_BOOTSTRAPPER>\n"
+                "- **Framework / runtime**: <TO_BE_DEFINED_BY_BOOTSTRAPPER>\n\n"
+                "## Testing\n"
+                "- **Commands** (install, lint, tests, CI): "
+                "<TO_BE_DEFINED_BY_BOOTSTRAPPER>\n\n"
+                "## Architecture and conventions\n"
+                "- **Rules** (structure, layering, forbidden patterns): "
+                "<TO_BE_DEFINED_BY_BOOTSTRAPPER>\n\n"
                 "## Status\n"
-                "- [ ] REPO EVALUATION REQUIRED: "
-                "Act as Manager to initialize this document.\n"
+                "- [ ] Bootstrap incomplete: follow `.crules/modes/BOOTSTRAPPER.md` "
+                "and root `AGENTS.md`.\n"
             )
             logger.info("Created skeleton project_spec.md")
         else:
@@ -370,6 +405,10 @@ def bootstrap_swarm(config: dict) -> bool:
         config.setdefault("enable_cursor", True)
         config.setdefault("enable_claude", True)
         config.setdefault("enable_copilot", True)
+        config.setdefault("enable_cline", True)
+        config.setdefault("enable_roo", True)
+        config.setdefault("enable_windsurf", True)
+        config.setdefault("enable_aider", True)
 
         if not write_rules_to_ai_dirs(config, global_rules, lang_rules_dir, []):
             logger.error("Failed to deploy global rules to AI directories")
@@ -423,6 +462,10 @@ def sync_modes(config: dict) -> bool:
         config.setdefault("enable_cursor", True)
         config.setdefault("enable_claude", True)
         config.setdefault("enable_copilot", True)
+        config.setdefault("enable_cline", True)
+        config.setdefault("enable_roo", True)
+        config.setdefault("enable_windsurf", True)
+        config.setdefault("enable_aider", True)
 
         if not write_rules_to_ai_dirs(config, global_rules, lang_rules_dir, []):
             logger.error("Failed to refresh IDE rule folders")
@@ -572,12 +615,11 @@ def write_rules_to_ai_dirs(
 ) -> bool:
     """Write rules to all enabled AI assistant directories.
 
-    Instantiates managers for each enabled assistant (Cursor, Claude, Copilot)
-    based on config flags, then writes global and per-language rule files
-    through each manager.
+    Instantiates managers for each enabled assistant based on config flags,
+    then writes global and per-language rule files through each manager.
 
     Args:
-        config: Configuration dict with enable_cursor/enable_claude/enable_copilot flags
+        config: Configuration dict with ``enable_*`` flags for each assistant
         global_rules: Path to global rules file
         lang_rules_dir: Path to language rules directory
         languages: List of language identifiers
@@ -591,6 +633,10 @@ def write_rules_to_ai_dirs(
             "enable_cursor": CursorManager,
             "enable_claude": ClaudeManager,
             "enable_copilot": CopilotManager,
+            "enable_cline": ClineManager,
+            "enable_roo": RooManager,
+            "enable_windsurf": WindsurfManager,
+            "enable_aider": AiderManager,
         }
         active_managers = [
             cls(config) for key, cls in manager_map.items() if config.get(key)

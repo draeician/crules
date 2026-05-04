@@ -192,6 +192,8 @@ When the user types one of these keywords, activate the described behaviour:
 ## Universal Agent System
 - **Context Discovery**: Upon first run, you must read `.crules/modes/` to determine your current active persona (Manager or Coder).
 - **State Management**: Reference `summary.txt` and `instructions.txt` for cross-session continuity.
-- **Bootstrap Protocol**: If `project_spec.md` is in "EVALUATION REQUIRED" status, you must immediately adopt the Manager persona, scan the repo (languages, frameworks, configs), and rewrite the `project_spec.md` to reflect the actual codebase.
+- **Bootstrap Protocol**:
+  1. **Lockout Check**: If `AGENTS.md` is in `[TEMPLATE]` status, you MUST immediately adopt the Bootstrapper persona (`.crules/modes/BOOTSTRAPPER.md`) to interview the user and define the stack. Do not proceed to step 2 until the status is `[CUSTOMIZED]`.
+  2. **Evaluation Check**: Once customized, if `project_spec.md` is in "EVALUATION REQUIRED" status, adopt the Manager persona to scan the repo and build the initial task roadmap.
 - **Tasking**: All work must be tracked as Markdown files in `.crules/tasks/wip/` before implementation begins.
 - **Version Control Integrity**: The `.crules/` directory and `project_spec.md` are integral to the project's identity and MUST be tracked in Git. Do not add them to `.gitignore`.

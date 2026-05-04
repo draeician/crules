@@ -1,22 +1,26 @@
 # Crules - Omni-Assistant Context Compiler
 
-A Python utility that acts as a **Swarm Infrastructure Deployer**, turning a single set of universal rules into native formats for multiple AI coding assistants while establishing a self-configuring agent ecosystem.
+A Python utility that acts as a **Swarm Infrastructure Deployer**, turning a single set of universal rules into native formats for **seven** AI coding assistants while establishing a self-configuring agent ecosystem (Bootstrapper lockout via root `AGENTS.md`, task pipeline, and `project_spec.md`).
 
 ## The Crules Philosophy: "Skeleton Swarms"
-Unlike hardcoded instruction sets, `crules` deploys a generic, role-based architecture into your repository. It provides the **Skeleton**, and your AI Agent (Cursor, Claude Code, Aider, etc.) provides the **Brain**. Upon landing in a "bootstrapped" repo, the AI is instructed to evaluate the codebase, update the project specifications, and self-configure its own operating modes.
+Unlike hardcoded instruction sets, `crules` deploys a generic, role-based architecture into your repository. It provides the **Skeleton**, and your AI agent (Cursor, Claude Code, GitHub Copilot, Cline, Roo Code, Windsurf, Aider, etc.) provides the **Brain**. Upon landing in a "bootstrapped" repo, the AI is instructed to evaluate the codebase, update the project specifications, and self-configure its own operating modes.
 
-| Assistant | Output Directory | File Extension | Metadata Key |
-|-----------|-----------------|----------------|--------------|
+| Assistant | Output directory | File extension | Metadata |
+|-----------|------------------|----------------|----------|
 | **Cursor** | `.cursor/rules/` | `.mdc` | `globs` |
 | **Claude Code** | `.claude/rules/` | `.md` | `paths` |
 | **GitHub Copilot** | `.github/instructions/` | `.instructions.md` | `applyTo` |
+| **Cline** | `.clinerules/` | `.md` | `globs` |
+| **Roo Code** | `.roorules/` | `.md` | `globs` |
+| **Windsurf** | `.windsurf/rules/` | `.md` | `globs` |
+| **Aider** | `.aider/rules/` | `.md` | `globs` (append-only `read:` entries in `.aider.conf.yml`) |
 
 ## Core Features
 
-- [cite_start]**Multi-Agent Compilation**: Compiles one source of truth into native rule files for all major IDE assistants[cite: 1, 19].
-- [cite_start]**Swarm Bootstrapping**: Initializes a `.crules/` directory with `MANAGER` and `CODER` personas and a task tracking system[cite: 71, 73].
-- [cite_start]**Self-Evaluating Spec**: Generates a skeleton `project_spec.md` that triggers the AI to perform an automated repository audit[cite: 18, 21].
-- [cite_start]**Universal Preamble**: Injects a standardized preamble into every file to ensure the AI prioritizes the `project_spec.md` as the ultimate source of truth[cite: 19, 79].
+- **Multi-agent compilation**: Compiles one source of truth into native rule files for Cursor, Claude Code, GitHub Copilot, Cline, Roo Code, Windsurf, and Aider.
+- **Swarm bootstrapping**: Initializes `.crules/` with Manager, Coder, Git policy, and **Bootstrapper** workflow modes, a task pipeline, root `AGENTS.md` (`[TEMPLATE]` / `[CUSTOMIZED]`), and a scaffolded `project_spec.md` (no external shell script required).
+- **Self-evaluating spec**: Skeleton `project_spec.md` drives repository discovery and customization after the Bootstrapper interview.
+- **Universal preamble**: Injects a standardized preamble (including `AGENTS.md` gatekeeper rules) into every generated rule file so `project_spec.md` stays the source of truth.
 - **Cross-IDE Continuity**: Uses `summary.txt` and `instructions.txt` as a "flight recorder" for handoffs between different tools.
 
 ## Installation
@@ -48,7 +52,7 @@ crules --bootstrap
 
 ```
 
-*Creates: `.crules/tasks/`, `.crules/modes/`, and `project_spec.md`.*
+*Creates: `.crules/tasks/`, `.crules/modes/` (including `BOOTSTRAPPER.md`), root `AGENTS.md`, and `project_spec.md`.*
 
 ### 3. Generate Language Context
 
@@ -60,6 +64,9 @@ crules python bash
 
 # Target only specific assistants
 crules -t cursor -t claude python
+
+# Example: only Windsurf and Aider
+crules -t windsurf -t aider python
 
 ```
 
@@ -80,6 +87,10 @@ Managed via `~/.config/crules/config.yaml`:
 enable_cursor: true
 enable_claude: true
 enable_copilot: true
+enable_cline: true
+enable_roo: true
+enable_windsurf: true
+enable_aider: true
 global_rules_path: "~/.config/crules/cursorrules"
 language_rules_dir: "~/.config/crules/lang_rules"
 

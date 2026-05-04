@@ -13,6 +13,10 @@ DEFAULT_CONFIG = {
     "delimiter": "\n# --- Delimiter ---\n",
     "use_legacy": False,
     "file_extension": ".mdc",
+    "enable_cline": True,
+    "enable_roo": True,
+    "enable_windsurf": True,
+    "enable_aider": True,
 }
 
 def load_config() -> Dict[str, Any]:

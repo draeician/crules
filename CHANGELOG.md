@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-05-03
+
+### Added
+- **Cline**, **Roo Code**, **Windsurf**, and **Aider** managers: `.clinerules/`, `.roorules/`, `.windsurf/rules/`, and `.aider/rules/` outputs with `globs` frontmatter; CLI `--target` / `-t` values `cline`, `roo`, `windsurf`, and `aider`
+- `enable_cline`, `enable_roo`, `enable_windsurf`, and `enable_aider` in `DEFAULT_CONFIG`, with all seven assistant toggles honored in the CLI and in `bootstrap_swarm` / `sync_modes` `setdefault` paths
+- **Aider** append-only registration of generated rule paths under `read:` in root `.aider.conf.yml` without `yaml.dump()` so existing comments are preserved
+- **Native Bootstrapper workflow**: packaged `BOOTSTRAPPER.md`, root `AGENTS.md` with `[TEMPLATE]` / `[CUSTOMIZED]` gatekeeping, and scaffolded `project_spec.md` placeholders from `crules --bootstrap`, replacing an external shell bootstrap script
+
+### Changed
+- README and `project_spec.md` document all seven assistants, metadata keys, and configuration surface
+- `tests/test_ai_managers.py` covers the new managers, Aider `.aider.conf.yml` behavior, and universal preamble parametrization
+
 ## [0.3.0] - 2026-03-04
 
 ### Added

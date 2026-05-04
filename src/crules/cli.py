@@ -5,7 +5,15 @@ import click
 from . import __version__
 from . import config, file_ops
 
-VALID_TARGETS = ("cursor", "claude", "copilot")
+VALID_TARGETS = (
+    "cursor",
+    "claude",
+    "copilot",
+    "cline",
+    "roo",
+    "windsurf",
+    "aider",
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -53,7 +61,8 @@ def main(
 ) -> None:
     """Generate AI assistant rules files.
     
-    By default, creates rule files for all enabled assistants (Cursor, Claude, Copilot).
+    By default, creates rule files for all enabled assistants (Cursor, Claude,
+    Copilot, Cline, Roo Code, Windsurf, Aider).
     Use --target to limit generation to specific tools.
     Use --legacy to generate a single .cursorrules file instead.
 
@@ -175,13 +184,25 @@ def main(
             logger.info(f"Successfully created {output_file}")
         else:
             if targets:
-                cfg["enable_cursor"] = "cursor" in targets
-                cfg["enable_claude"] = "claude" in targets
-                cfg["enable_copilot"] = "copilot" in targets
+                tset = {t.lower() for t in targets}
+                cfg["enable_cursor"] = "cursor" in tset
+                cfg["enable_claude"] = "claude" in tset
+                cfg["enable_copilot"] = "copilot" in tset
+                cfg["enable_cline"] = "cline" in tset
+                cfg["enable_roo"] = "roo" in tset
+                cfg["enable_windsurf"] = "windsurf" in tset
+                cfg["enable_aider"] = "aider" in tset
             else:
-                cfg.setdefault("enable_cursor", True)
-                cfg.setdefault("enable_claude", True)
-                cfg.setdefault("enable_copilot", True)
+                for key in (
+                    "enable_cursor",
+                    "enable_claude",
+                    "enable_copilot",
+                    "enable_cline",
+                    "enable_roo",
+                    "enable_windsurf",
+                    "enable_aider",
+                ):
+                    cfg.setdefault(key, True)
 
             if file_ops.write_rules_to_ai_dirs(cfg, global_rules, lang_rules_dir, list(languages), force):
                 logger.info("Successfully created rules for AI assistants")
