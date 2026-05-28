@@ -274,7 +274,7 @@ def update_gitignore() -> None:
 def refresh_default_rules(verbose: bool = False) -> bool:
     """Refresh the global default rules file from the packaged defaults.
 
-    Copies ``default_cursorrules`` from the installed ``crules.rules`` package
+    Copies ``default_cursorrules`` from the ``crules.rules`` package data
     into the user's ``~/.config/crules/cursorrules`` file, creating the
     configuration directory if needed.
 
@@ -366,7 +366,12 @@ def bootstrap_swarm(config: dict) -> bool:
                 "> **Critical:** Until the first line above reads `[CUSTOMIZED]`, "
                 "you MUST read and follow `.crules/modes/BOOTSTRAPPER.md` on every "
                 "session and complete the Bootstrapper workflow before acting as "
-                "normal Manager or Coder.\n"
+                "normal Manager or Coder.\n\n"
+                "## Common Principles\n"
+                "- Don’t assume. Don’t hide confusion. Surface tradeoffs.\n"
+                "- Minimum code that solves the problem. Nothing speculative.\n"
+                "- Touch only what you must. Clean up only your own mess.\n"
+                "- Define success criteria. Loop until verified.\n"
             )
             logger.info("Created AGENTS.md with [TEMPLATE] bootstrap status")
 

@@ -43,8 +43,9 @@ class BaseAIManager(ABC):
             full_content += "Always adhere to project_spec.md as the ultimate source of truth.\n"
             full_content += "If instructions conflict, prioritize: project_spec.md > Native Rules > Root Files.\n"
             full_content += (
-                "CRITICAL: Before executing any task, you MUST check the root "
-                "`AGENTS.md` file. If the status is `[TEMPLATE]`, you are strictly "
+                "CRITICAL: Before executing any task, you MUST read the root "
+                "`AGENTS.md` file for common cross-IDE rules and repo status. "
+                "If the status is `[TEMPLATE]`, you are strictly "
                 "locked into the Bootstrapper persona (`.crules/modes/BOOTSTRAPPER.md`). "
                 "Do not write code or manage tasks until the workspace is customized.\n\n"
             )

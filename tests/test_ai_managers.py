@@ -484,6 +484,8 @@ class TestSwarmBootstrap:
         assert "# Agent System Status: [TEMPLATE]" in agents_text
         assert agents_text.startswith("# Agent System Status: [TEMPLATE]")
         assert "BOOTSTRAPPER.md" in agents_text
+        assert "## Common Principles" in agents_text
+        assert "Don’t assume. Don’t hide confusion. Surface tradeoffs." in agents_text
 
         bootstrapper = project_dir / ".crules" / "modes" / "BOOTSTRAPPER.md"
         assert bootstrapper.is_file(), "BOOTSTRAPPER.md not deployed to .crules/modes/"

@@ -1,9 +1,20 @@
 """Command-line interface for crules."""
 from pathlib import Path
 import logging
+from importlib.metadata import PackageNotFoundError, version as dist_version
+
 import click
+
 from . import __version__
 from . import config, file_ops
+
+
+def _cli_version() -> str:
+    """Return PEP 566 distribution version when installed; else ``__version__``."""
+    try:
+        return dist_version("crules")
+    except PackageNotFoundError:
+        return __version__
 
 VALID_TARGETS = (
     "cursor",
@@ -22,7 +33,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 @click.command()
-@click.version_option(version=__version__, prog_name='crules')
+@click.version_option(version=_cli_version(), prog_name='crules')
 @click.argument('languages', nargs=-1, required=False)
 @click.option('-f', '--force', is_flag=True, 
               help='Force overwrite existing files. With --setup, updates existing rule files.')
@@ -33,7 +44,7 @@ logger = logging.getLogger(__name__)
 @click.option('-s', '--setup', 'setup_dirs', is_flag=True, 
               help='Create or update necessary directories and rule files')
 @click.option('-R', '--refresh-defaults', 'refresh_defaults', is_flag=True,
-              help='Refresh global default rules from the installed package.')
+              help='Refresh global default rules from this package build.')
 @click.option('--status', 'show_status', is_flag=True,
               help='Show crules configuration and project status.')
 @click.option('--legacy', is_flag=True,
